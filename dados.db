@@ -1,0 +1,84 @@
+create database chamado;
+
+use chamado;
+
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100),
+    email VARCHAR(100) UNIQUE,
+    senha VARCHAR(255),
+    tipo ENUM('admin', 'tecnico', 'usuario') DEFAULT 'usuario',
+    posto_graduacao VARCHAR(10),
+    nome_guerra VARCHAR(20),
+    data_cadastro DATETIME
+);
+
+DELETE FROM usuarios WHERE email = 'admin@empresa.com';
+INSERT INTO usuarios (nome, email, senha, tipo, posto_graduacao, nome_guerra)
+VALUES ('Diego Rodrigues Cristaldo', 'diegorcristaldo@hotmail.com', 
+        '$2y$10$0.nnefQKjxTufdCaqfJa4O5P5zAFECQ/pZJXgqq/HTqw3nWYyH76m', 
+        'admin', '2°Sgt', 'Diego');
+-- A senha acima é: 123456 (já criptografada com password_hash)
+select * from chamados;
+
+UPDATE usuarios SET posto_graduacao = 'Sd EV' WHERE id = '2';
+UPDATE usuarios SET nome_guerra = 'Diego' WHERE id = '3';
+
+CREATE TABLE chamados (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    descricao TEXT NOT NULL,
+    arquivos TEXT,
+    prioridade ENUM('baixa','media','alta') DEFAULT 'baixa',
+    status ENUM('aberto','em_andamento','fechado') DEFAULT 'aberto',
+    data_abertura DATETIME DEFAULT CURRENT_TIMESTAMP,
+    id_usuario_abriu INT NOT NULL,
+    id_tecnico_responsavel INT DEFAULT NULL,
+    id_equipamento INT DEFAULT NULL,
+    FOREIGN KEY (id_usuario_abriu) REFERENCES usuarios(id)
+);
+
+CREATE TABLE comentarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_chamado INT NOT NULL,
+    id_usuario INT NOT NULL,
+    comentario TEXT NOT NULL,
+    data DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_chamado) REFERENCES chamados(id),
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
+);
+
+CREATE TABLE equipamentos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    numero_patrimonio VARCHAR(50),
+    setor VARCHAR(100)
+);
+
+CREATE TABLE chamados_arquivos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    chamado_id INT NOT NULL,
+    nome_arquivo VARCHAR(255) NOT NULL,
+    caminho_arquivo VARCHAR(500) NOT NULL,
+    data_upload DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (chamado_id) REFERENCES chamados(id) ON DELETE CASCADE
+);
+
+CREATE TABLE historico_chamados (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    chamado_id INT NOT NULL,
+    tecnico_id INT DEFAULT NULL,
+    acao VARCHAR(100) NOT NULL,
+    observacao TEXT,
+    data_acao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (chamado_id) REFERENCES chamados(id) ON DELETE CASCADE,
+    FOREIGN KEY (tecnico_id) REFERENCES usuarios(id)
+);
+
+CREATE TABLE recuperacao_senha (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    codigo VARCHAR(6) NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE
+);
