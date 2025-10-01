@@ -54,26 +54,60 @@ $categorias = [
 // Array com todas as seções organizadas por companhia
 $secoes = [
     'estado_maior' => [
+        'Adjunto de Comando',
+        'Chefe da 1ªSeção',
+        'Chefe da 2ªSeção',
+        'Chefe da 3ªSeção',
+        'Chefe da 4ªSeção',
+        'Chefe da Relações Públicas',
+        'Chefe do COL',
         'Comandante do Batalhão',
-        'Sub-Comandante do Batalhão', 
+        'Fiscal Adm',
+        'Sub-Comandante do Batalhão'
+    ],
+    'ccap' => [
         '1ªSeção',
         '2ªSeção',
         '3ªSeção',
         '4ªSeção',
-        'Relações Públicas'
-    ],
-    'ccap' => [
+        'Almoxarifado',
+        'Aprovisionamento',
+        'COL',
         'Comandante CCAp',
+        'Conformidade e Gestão',
+        'Fiscalização Administrativa',
+        'Furriel CCAp',
+        'Pelotão de Comunicações',
+        'Relações Públicas',
+        'SALC',
         'Sargenteação CCAp',
-        'Subtenência CCAp'
+        'Seção de Apoio Juridico',
+        'Seção de pagamento',
+        'Seção de Saúde',
+        'Secretária',
+        'STI',
+        'Subtenência CCAp',
+        'Tesouraria'
     ],
     'cm' => [
+        'Capotaria',
+        'Centro de Manutenção',
         'Comandante CM',
+        'Funilaria',
+        'Furriel CM',
+        'Pelotão de Apoio',
+        'Pelotão de Apoio CL V',
+        'Pelotão de evacuação',
         'Sargenteação CM', 
+        'Seção de armamento',
+        'SIMB',
         'Subtenência CM'
     ],
     'cs' => [
         'Comandante CS',
+        'Furriel CM',
+        'Pelotão de Suprimento e Transporte',
+        'PCA',
         'Sargenteação CS',
         'Subtenência CS'
     ]

@@ -47,10 +47,10 @@ require_once 'includes/funcoes_chamado.php';
         <li class="nav-item">
           <a href="usuarios.php" class="nav-link">👥 Usuários</a>
         </li>
+        <?php endif; ?>        
         <li class="nav-item">
           <a href="relatorios.php" class="nav-link">📊 Relatórios</a>
         </li>
-        <?php endif; ?>
         <li class="nav-item">
           <a href="logout.php" class="nav-link mt-4">🚪 Sair</a>
         </li>

@@ -2,14 +2,16 @@ body {
     background-color: #f8f9fa;
     min-height: 100vh;
 }
+
 .card {
     border-radius: 0.5rem;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    border: none;
 }
 
 /*index*/
 .login {
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -102,7 +104,7 @@ body {
 }
 
 .badge-status-fechado {
-    background-color: #198754;
+    background-color: #6c757d;
     color: white;
 }
 
@@ -175,4 +177,96 @@ body {
     max-height: 70vh;
     width: auto;
     margin: 0 auto;
+}
+
+/* Criar conta */
+.criar-conta {
+    background: url("login.png"), linear-gradient(135deg, rgb(153, 166, 181), #343a40);
+    background-repeat: no-repeat;
+    background-position: center;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.card-custom {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    background: rgba(255, 255, 255, 0.55);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+.card-header-custom {
+    background: linear-gradient(135deg, rgba(126, 133, 141, 0.45), #0f1113ff);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+    padding: 2rem;
+    text-align: center;
+    
+}
+
+.form-control:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+.btn-gradient {
+    background: linear-gradient(135deg, #dafa09ff 0%, #e6ff05ff 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 30px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(78, 115, 223, 0.4);
+}
+
+.logo-text {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.password-toggle {
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.password-toggle:hover {
+    color: #4e73df !important;
+}
+
+/*Troca de senha */
+.senha {
+    background: linear-gradient(135deg, rgb(153, 166, 181), #343a40);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.password-toggle {
+    cursor: pointer;
+}
+.card-header {
+    background: linear-gradient(135deg, rgba(126, 133, 141, 0.45), #0f1113ff);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+}
+.code-input {
+    font-size: 1.5rem;
+    text-align: center;
+    letter-spacing: 0.5rem;
 }

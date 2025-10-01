@@ -122,28 +122,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Recuperar Senha - HelpDesk</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        body {
-            background: linear-gradient(135deg, rgb(153, 166, 181), #343a40);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        .card-header {
-            background: linear-gradient(135deg, rgba(126, 133, 141, 0.45), #0f1113ff);
-            color: white;
-            border-radius: 15px 15px 0 0 !important;
-        }
-    </style>
+    <link rel="stylesheet" href="../assets/style.css">
 </head>
-<body>
+<body class="senha">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6">

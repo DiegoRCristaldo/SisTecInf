@@ -86,86 +86,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Criar Perfil - HelpDesk</title>
+    <title>Criar Perfil - SISTECINF</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        body {
-            background: url("assets/login.png"), linear-gradient(135deg, rgb(153, 166, 181), #343a40);
-            background-repeat: no-repeat;
-            background-position: center;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .card-custom {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            background: rgba(255, 255, 255, 0.55);
-            backdrop-filter: blur(10px);
-        }
-        
-        .card-header-custom {
-            background: linear-gradient(135deg, rgba(126, 133, 141, 0.45), #0f1113ff);
-            color: white;
-            border-radius: 15px 15px 0 0 !important;
-            padding: 2rem;
-            text-align: center;
-            
-        }
-        
-        .form-control:focus {
-            border-color: #4e73df;
-            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
-        }
-        
-        .btn-gradient {
-            background: linear-gradient(135deg, #dafa09ff 0%, #e6ff05ff 100%);
-            border: none;
-            border-radius: 8px;
-            padding: 12px 30px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-gradient:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(78, 115, 223, 0.4);
-        }
-        
-        .logo-text {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-        
-        .password-toggle {
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-        
-        .password-toggle:hover {
-            color: #4e73df !important;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/style.css">
 </head>
-<body>
+<body class="criar-conta">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8 col-lg-6">
                 <div class="card card-custom">
                     <div class="card-header card-header-custom">
                         <div class="logo-text">
-                            <i class="bi bi-person-plus-fill me-2"></i>HelpDesk
+                            <i class="bi bi-person-plus-fill me-2"></i>SISTECINF
                         </div>
                         <p class="subtitle">Crie sua conta e solicite suporte técnico</p>
                     </div>
