@@ -2,12 +2,6 @@
 include 'includes/auth.php';
 include 'includes/db.php';
 
-// Verificar se o usuário tem permissão para acessar relatórios
-if ($_SESSION['usuario_tipo'] !== 'admin' && $_SESSION['usuario_tipo'] !== 'tecnico') {
-    header('Location: dashboard.php');
-    exit();
-}
-
 // Definir período padrão (últimos 30 dias)
 $data_inicio = date('Y-m-01'); // Primeiro dia do mês atual
 $data_fim = date('Y-m-d');     // Data atual

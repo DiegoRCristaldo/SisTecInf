@@ -12,24 +12,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $titulo = trim($_POST['titulo']);
 $descricao = trim($_POST['descricao']);
 $prioridade = $_POST['prioridade'] ?? 'baixa';
-$tipo_solicitacao = $_POST['tipo_solicitacao'];
-$companhia = $_POST['companhia'];
+$tipo_solicitacao = $_POST['tipo_solicitacao'] ?? '';
+$companhia = $_POST['companhia'] ?? '';
+$categoria = $_POST['categoria'] ?? '';
 $secao = $_POST['secao'] ?? '';
 $usuario_id = $_SESSION['usuario_id'];
 
-// Processar categoria
-$categoria = $_POST['categoria'] ?? '';
-
-// Processar seção baseada na companhia
-$secao = '';
-if ($companhia === 'estado_maior' && isset($_POST['secao_estado_maior'])) {
-    $secao = $_POST['secao_estado_maior'];
-} elseif ($companhia === 'ccap' && isset($_POST['secao_ccap'])) {
-    $secao = $_POST['secao_ccap'];
-} elseif ($companhia === 'cm' && isset($_POST['secao_cm'])) {
-    $secao = $_POST['secao_cm'];
-} elseif ($companhia === 'cs' && isset($_POST['secao_cs'])) {
-    $secao = $_POST['secao_cs'];
+// Validar campos obrigatórios
+if (empty($tipo_solicitacao) || empty($companhia)) {
+    header("Location: abrir_chamado.php?msg=erro&detail=" . urlencode("Tipo de solicitação e companhia são obrigatórios"));
+    exit;
 }
 
 // Combinar informações adicionais na descrição
@@ -64,28 +56,37 @@ if (isset($_FILES['anexar_arquivo']) && $_FILES['anexar_arquivo']['error'][0] ==
             $destino = 'uploads/' . $nome_unico;
             
             if (move_uploaded_file($nome_temp, $destino)) {
-                $nomes_arquivos[] = $nome_unico; // Apenas o nome do arquivo, não o caminho completo
+                $nomes_arquivos[] = $nome_unico;
             }
         }
     }
     $arquivos_nomes = implode(',', $nomes_arquivos);
 }
 
-// Preparar e executar a query - CORRIGIDO
-$sql = "INSERT INTO chamados (titulo, descricao, prioridade, id_usuario_abriu, arquivos) 
-        VALUES (?, ?, ?, ?, ?)";
+// Preparar e executar a query - AGORA COM OS NOVOS CAMPOS
+$sql = "INSERT INTO chamados (titulo, descricao, tipo_solicitacao, companhia, secao, prioridade, id_usuario_abriu, arquivos) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
 $stmt = $conn->prepare($sql);
 
 if ($stmt) {
-    $stmt->bind_param("sssis", $titulo, $descricao_completa, $prioridade, $usuario_id, $arquivos_nomes);
+    $stmt->bind_param("ssssssis", 
+        $titulo, 
+        $descricao_completa, 
+        $tipo_solicitacao, 
+        $companhia, 
+        $secao, 
+        $prioridade, 
+        $usuario_id, 
+        $arquivos_nomes
+    );
     
     if ($stmt->execute()) {
         $chamado_id = $stmt->insert_id;
         
         // Registrar no histórico
         $acao = "Chamado aberto";
-        $observacao = "Chamado criado pelo usuário";
+        $observacao = "Chamado criado pelo usuário. Tipo: " . $tipo_solicitacao . ", Companhia: " . $companhia;
         
         $sql_historico = "INSERT INTO historico_chamados (chamado_id, acao, observacao) 
                         VALUES (?, ?, ?)";

@@ -42,11 +42,11 @@ $categorias = [
         'Outros'
     ],
     'instalacao' => [
-        'Instalar de Antivírus',
-        'Instalar de Siscofis',
-        'Instalar de Java (SIAFI)',
-        'Instalar de Token',
-        'Instalar de Ponto de rede',
+        'Instalar Antivírus',
+        'Instalar Siscofis',
+        'Instalar Java/Tela Preta (SIAFI)',
+        'Instalar Token (AC Defesa)',
+        'Instalar Ponto de rede',
         'Outros'
     ]
 ];
@@ -227,6 +227,8 @@ const DynamicFormManager = {
         });
     },
     
+    // No arquivo abrir_chamado.php, substitua esta parte do JavaScript:
+
     carregarElemento(tipo, valor, labelText) {
         const container = document.getElementById(`container-${tipo}`);
         container.innerHTML = '';
@@ -240,10 +242,13 @@ const DynamicFormManager = {
                 ? `${labelText} ${valor.charAt(0).toUpperCase() + valor.slice(1)}`
                 : labelText;
                 
+            // CORREÇÃO: Usar name="secao" em vez de name dinâmico
+            const fieldName = tipo === 'categorias' ? 'categoria' : 'secao';
+                
             container.innerHTML = `
                 <div class="mb-3">
                     <label class="form-label">${label}</label>
-                    <select name="${tipo === 'categorias' ? 'categoria' : 'secao'}" 
+                    <select name="${fieldName}" 
                             class="form-select" ${tipo === 'categorias' ? 'required' : ''}>
                         <option value="">Selecione...</option>
                         ${options}
