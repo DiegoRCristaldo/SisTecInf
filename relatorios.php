@@ -94,8 +94,8 @@ foreach ($chamados as $chamado) {
     $estatisticas['por_prioridade'][$chamado['prioridade']]++;
     
     // Por tipo - usando o campo do banco
-    $tipo = $chamado['tipo_solicitacao'] ?? 'outros';
-    $tipo_label = $mapeamento_tipo[$tipo] ?? 'Outros';
+    $tipo = $chamado['tipo_solicitacao'];
+    $tipo_label = $mapeamento_tipo[$tipo];
     $estatisticas['por_tipo'][$tipo_label] = ($estatisticas['por_tipo'][$tipo_label] ?? 0) + 1;
     
     // Por dia
@@ -103,20 +103,20 @@ foreach ($chamados as $chamado) {
     $estatisticas['por_dia'][$data] = ($estatisticas['por_dia'][$data] ?? 0) + 1;
     
     // Por companhia - usando o campo do banco
-    $companhia = $chamado['companhia'] ?? 'outros';
-    $companhia_label = $mapeamento_companhia[$companhia] ?? 'Outros';
+    $companhia = $chamado['companhia'];
+    $companhia_label = $mapeamento_companhia[$companhia];
     $estatisticas['por_companhia'][$companhia_label] = ($estatisticas['por_companhia'][$companhia_label] ?? 0) + 1;
 }
 
 // Garantir que todos os tipos e companhias apareçam nos gráficos (mesmo com zero)
-$tipos_esperados = ['Apoio', 'Problema', 'Instalação', 'Outros'];
+$tipos_esperados = ['Apoio', 'Problema', 'Instalação'];
 foreach ($tipos_esperados as $tipo) {
     if (!isset($estatisticas['por_tipo'][$tipo])) {
         $estatisticas['por_tipo'][$tipo] = 0;
     }
 }
 
-$companhias_esperadas = ['Estado Maior', 'CCAp', 'CM', 'CS', 'Outros'];
+$companhias_esperadas = ['Estado Maior', 'CCAp', 'CM', 'CS'];
 foreach ($companhias_esperadas as $companhia) {
     if (!isset($estatisticas['por_companhia'][$companhia])) {
         $estatisticas['por_companhia'][$companhia] = 0;
