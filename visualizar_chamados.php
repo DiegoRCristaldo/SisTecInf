@@ -5,7 +5,7 @@ include 'includes/funcoes_chamado.php';
 
 // Verificar se usuário tem permissão
 if ($_SESSION['usuario_tipo'] !== 'admin' && $_SESSION['usuario_tipo'] !== 'tecnico') {
-    header("Location: dashboard.php?msg=acesso_negado");
+    header("Location: index.php?msg=acesso_negado");
     exit;
 }
 
@@ -48,6 +48,7 @@ if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecn
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8" />
+    <link rel="icon" href="assets/2blog.png" type="image/png">
     <title>Visualizar Todos os Chamados - HelpDesk</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -65,7 +66,7 @@ if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecn
     <div class="container py-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="mb-0">📋 Todos os Chamados</h2>
-            <a href="dashboard.php" class="btn btn-outline-secondary">← Voltar ao Dashboard</a>
+            <a href="index.php" class="btn btn-outline-secondary">← Voltar ao Menu</a>
         </div>
 
         <!-- Aviso sobre chamados fechados ocultos -->
@@ -252,7 +253,7 @@ if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecn
         </div>
         <?php endif; ?>
 
-        <a href="dashboard.php" class="btn btn-secondary mt-3">⬅ Voltar ao Dashboard</a>
+        <a href="index.php" class="btn btn-secondary mt-3">⬅ Voltar ao Menu</a>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

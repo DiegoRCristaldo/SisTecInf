@@ -158,6 +158,7 @@ $grafico_companhia = prepararDadosGrafico($estatisticas['por_companhia']);
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="assets/2blog.png" type="image/png">
     <title>Relatórios de Chamados</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -188,7 +189,7 @@ $grafico_companhia = prepararDadosGrafico($estatisticas['por_companhia']);
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>📊 Relatórios de Chamados</h2>
-                <a href="dashboard.php" class="btn btn-secondary">⬅ Voltar ao Dashboard</a>
+                <a href="index.php" class="btn btn-secondary">⬅ Voltar ao Menu</a>
             </div>
 
             <!-- Filtros -->

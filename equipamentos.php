@@ -13,6 +13,7 @@ $result = $conn->query("SELECT * FROM equipamentos ORDER BY nome ASC");
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="assets/2blog.png" type="image/png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Equipamentos - HelpDesk</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -66,7 +67,7 @@ $result = $conn->query("SELECT * FROM equipamentos ORDER BY nome ASC");
     </div>
 
     <div class="mt-3">
-        <a href="dashboard.php" class="btn btn-secondary">
+        <a href="index.php" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Voltar
         </a>
     </div>

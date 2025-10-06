@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $success = 'Senha atualizada com sucesso!';
             // Redirecionar após 3 segundos
-            header("refresh:3;url=../index.php");
+            header("refresh:3;url=../login.php");
         } else {
             $error = 'Erro ao atualizar a senha. Tente novamente.';
         }
@@ -63,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="../assets/2blog.png" type="image/png">
     <title>Nova Senha - HelpDesk</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css">

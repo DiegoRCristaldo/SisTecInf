@@ -37,6 +37,7 @@ if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecn
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8" />
+    <link rel="icon" href="assets/2blog.png" type="image/png">
     <title>Lista de Chamados - HelpDesk</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -114,7 +115,7 @@ if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecn
             </table>
         </div>
 
-        <a href="dashboard.php" class="btn btn-secondary mt-3">⬅ Voltar ao Dashboard</a>
+        <a href="index.php" class="btn btn-secondary mt-3">⬅ Voltar ao Menu</a>
     </div>
 </body>
 </html>

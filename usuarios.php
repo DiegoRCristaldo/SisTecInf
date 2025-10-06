@@ -4,7 +4,7 @@ require_once 'includes/auth.php';
 
 // Verifica se é admin
 if ($_SESSION['usuario_tipo'] !== 'admin') {
-    header("Location: dashboard.php");
+    header("Location: login.php");
     exit();
 }
 
@@ -80,6 +80,7 @@ $patentes = [
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="assets/2blog.png" type="image/png">
     <title>Gerenciar Usuários</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -90,7 +91,7 @@ $patentes = [
     <!-- Botão adicionar -->
     <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalCriar">+ Novo Usuário</button>
     <div class="mb-3">
-        <a href="dashboard.php" class="btn btn-secondary">
+        <a href="index.php" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Voltar
         </a>
     </div>

@@ -65,6 +65,7 @@ if (isset($_GET['msg'])) {
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8" />
+    <link rel="icon" href="assets/2blog.png" type="image/png">
     <title>Chamado #<?= $chamado['id'] ?> - HelpDesk</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -101,7 +102,7 @@ if (isset($_GET['msg'])) {
         <?php endif; ?>
 
         <div class="mb-4">
-            <a href="dashboard.php" class="btn btn-secondary">← Voltar para Tela Inicial</a>
+            <a href="index.php" class="btn btn-secondary">← Voltar para Tela Inicial</a>
             <?php if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecnico'): ?>
             <a href="visualizar_chamados.php" class="btn btn-secondary">← Todos os Chamados</a>
             <?php endif?>
