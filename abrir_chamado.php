@@ -122,15 +122,9 @@ if (isset($_GET['msg']) && $_GET['msg'] === 'sucesso') {
 } elseif (isset($_GET['msg']) && $_GET['msg'] === 'erro') {
     $msg = "Erro ao abrir chamado. Tente novamente.";
 }
-?>
 
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="assets/2blog.png" type="image/png">
-    <title>Abrir Chamado</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+require 'header.php';
+?>
 </head>
 <body class="bg-light">
 <div class="container mt-5">

@@ -17,7 +17,7 @@ if (!$result) {
     die("Erro ao buscar chamados");
 }
 
-// No listar_chamados.php, atualize a query para também ocultar fechados:
+// No meus_chamados.php, atualize a query para também ocultar fechados:
 if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecnico') {
     $sql = "SELECT c.*, u.nome AS usuario_nome 
             FROM chamados c 
@@ -31,21 +31,14 @@ if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecn
             WHERE c.id_usuario_abriu = ? AND c.status != 'fechado'"; // E aqui também
     // ... resto do código
 }
-?>
 
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="assets/2blog.png" type="image/png">
-    <title>Lista de Chamados - HelpDesk</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="assets/style.css">
+require 'header.php';
+
+?>
 </head>
 <body class="bg-light">
     <div class="container py-4">
-        <h2 class="mb-4">Lista de Chamados</h2>
+        <h2 class="mb-4">Meus Chamados</h2>
 
         <form method="get" class="row g-3 align-items-center mb-4">
             <div class="col-auto">
@@ -63,7 +56,7 @@ if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecn
                 <button type="submit" class="btn btn-primary">Filtrar</button>
             </div>
             <div class="col-auto">
-                <a href="listar_chamados.php" class="btn btn-outline-secondary">Limpar</a>
+                <a href="meus_chamados.php" class="btn btn-outline-secondary">Limpar</a>
             </div>
         </form>
 

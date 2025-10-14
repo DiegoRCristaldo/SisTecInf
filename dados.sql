@@ -90,3 +90,6 @@ ADD COLUMN secao VARCHAR(100) AFTER companhia;
 UPDATE chamados SET tipo_solicitacao = 'problema' WHERE titulo LIKE '%problema%';
 UPDATE chamados SET tipo_solicitacao = 'apoio' WHERE titulo LIKE '%apoio%';
 UPDATE chamados SET tipo_solicitacao = 'instalacao' WHERE titulo LIKE '%instala%';
+
+INSERT INTO equipamentos (nome, ip, mac, secao)
+VALUES 

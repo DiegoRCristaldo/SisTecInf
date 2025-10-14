@@ -5,7 +5,7 @@ include 'includes/funcoes_chamado.php';
 
 // Verificar se o ID do chamado foi passado
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header("Location: listar_chamados.php");
+    header("Location: meus_chamados.php");
     exit;
 }
 
@@ -15,13 +15,13 @@ $chamado_id = intval($_GET['id']);
 $chamado = buscarChamadoPorId($conn, $chamado_id);
 
 if (!$chamado) {
-    header("Location: listar_chamados.php?msg=chamado_nao_encontrado");
+    header("Location: meus_chamados.php?msg=chamado_nao_encontrado");
     exit;
 }
 
 // Verificar permissão usando a função
 if (!verificarPermissaoChamado($chamado, $_SESSION['usuario_id'], $_SESSION['usuario_tipo'])) {
-    header("Location: listar_chamados.php?msg=acesso_negado");
+    header("Location: meus_chamados.php?msg=acesso_negado");
     exit;
 }
 
@@ -59,17 +59,10 @@ if (isset($_GET['msg'])) {
     ];
     $msg = $mensagens[$_GET['msg']] ?? '';
 }
-?>
 
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="assets/2blog.png" type="image/png">
-    <title>Chamado #<?= $chamado['id'] ?> - HelpDesk</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="assets/style.css">
+require 'header.php';
+
+?>
 </head>
 <body class="bg-light">
     <div class="container py-4">
@@ -266,7 +259,7 @@ if (isset($_GET['msg'])) {
 
                             <div class="d-grid gap-2 d-md-flex">
                                 <button type="submit" name="atualizar_status" class="btn btn-salvar">💾 Salvar Alterações</button>
-                                <a href="listar_chamados.php" class="btn btn-outline-secondary">📋 Lista de Chamados</a>
+                                <a href="meus_chamados.php" class="btn btn-outline-secondary">📋 Meus Chamados</a>
                             </div>
                         </form>
                     </div>

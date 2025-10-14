@@ -39,11 +39,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
+
+require 'header.php';
+
 ?>
-<!DOCTYPE html>
-<html>
-<head>
-    <title><?= $id > 0 ? 'Editar' : 'Novo' ?> Equipamento</title>
 </head>
 <body>
     <h2><?= $id > 0 ? 'Editar' : 'Novo' ?> Equipamento</h2>

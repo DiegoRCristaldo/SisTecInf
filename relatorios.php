@@ -152,36 +152,11 @@ $grafico_prioridade = prepararDadosGrafico($estatisticas['por_prioridade']);
 $grafico_tipo = prepararDadosGrafico($estatisticas['por_tipo']);
 $grafico_dia = prepararDadosGrafico($estatisticas['por_dia']);
 $grafico_companhia = prepararDadosGrafico($estatisticas['por_companhia']);
+
+require 'header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="assets/2blog.png" type="image/png">
-    <title>Relatórios de Chamados</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .card-chart {
-            height: 300px;
-            margin-bottom: 20px;
-        }
-        .card-chart .card-body {
-            position: relative;
-            height: 250px;
-        }
-        .stat-card {
-            border-left: 4px solid #0d6efd;
-        }
-        .table-responsive {
-            max-height: 400px;
-        }
-        canvas {
-            width: 100% !important;
-            height: 100% !important;
-        }
-    </style>
 </head>
 <body class="bg-light">
 <div class="container-fluid mt-4">

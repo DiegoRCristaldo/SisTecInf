@@ -42,25 +42,10 @@ $tecnicos_filtro = [];
 if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecnico') {
     $tecnicos_filtro = buscarTecnicos($conn);
 }
-?>
 
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="assets/2blog.png" type="image/png">
-    <title>Visualizar Todos os Chamados - HelpDesk</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="assets/style.css">
-    <style>
-        .stats-card { transition: transform 0.2s; }
-        .stats-card:hover { transform: translateY(-2px); }
-        .filter-section { background-color: #f8f9fa; border-radius: 10px; padding: 1.5rem; margin-bottom: 2rem; }
-        .table-hover tbody tr:hover { background-color: rgba(102, 126, 234, 0.1); }
-        .badge-prioridade { font-size: 0.8rem; padding: 0.4rem 0.8rem; }
-        .alert-info { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
-    </style>
+require 'header.php';
+
+?>
 </head>
 <body class="bg-light">
     <div class="container py-4">
@@ -219,7 +204,7 @@ if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecn
                                             <small class="text-muted"><?= date('H:i', strtotime($row['data_abertura'])) ?></small>
                                         </td>
                                         <td>
-                                            <a href="detalhar_chamado.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-primary">👁️ Ver</a>
+                                            <a href="detalhar_chamado.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-primary">👁️ Detalhar</a>
                                         </td>
                                     </tr>
                                 <?php endwhile; ?>
