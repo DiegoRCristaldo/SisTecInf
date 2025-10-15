@@ -1,7 +1,6 @@
 <?php
-// versao_simples.php
 
-$linhas = file('lista.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$linhas = file('pfsense.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 $dados = [];
 
 foreach ($linhas as $linha) {

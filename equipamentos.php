@@ -31,8 +31,8 @@ require 'header.php';
                         <tr>
                             <th>ID</th>
                             <th>Nome</th>
-                            <th>Patrimônio</th>
-                            <th>Setor</th>
+                            <th>IP</th>
+                            <th>Seção</th>
                             <th class="text-center">Ações</th>
                         </tr>
                     </thead>
@@ -41,8 +41,8 @@ require 'header.php';
                         <tr>
                             <td><?= $row['id'] ?></td>
                             <td><?= htmlspecialchars($row['nome']) ?></td>
-                            <td><?= htmlspecialchars($row['numero_patrimonio']) ?></td>
-                            <td><?= htmlspecialchars($row['setor']) ?></td>
+                            <td><?= htmlspecialchars($row['ip']) ?></td>
+                            <td><?= htmlspecialchars($row['secao']) ?></td>
                             <td class="text-center">
                                 <a href="equipamento_form.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-primary">
                                     <i class="bi bi-pencil"></i> Editar
