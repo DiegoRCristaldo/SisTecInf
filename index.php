@@ -26,10 +26,10 @@ require 'header.php';
         <li class="nav-item">
           <a href="meus_chamados.php" class="nav-link">📋 Meus Chamados</a>
         </li>
-        <?php if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecnico'): ?>
         <li class="nav-item">
           <a href="visualizar_chamados.php" class="nav-link">📋 Visualizar Chamados</a>
         </li>
+        <?php if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecnico'): ?>
         <li class="nav-item">
           <a href="equipamentos.php" class="nav-link">💻 Equipamentos</a>
         </li>

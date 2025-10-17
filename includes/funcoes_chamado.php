@@ -149,12 +149,6 @@ function buscarChamadosComFiltro($conn, $filtros = [], $usuario_id = null, $usua
     $params = [];
     $types = '';
     
-    if ($usuario_tipo !== 'admin' && $usuario_tipo !== 'tecnico') {
-        $where_conditions[] = "c.id_usuario_abriu = ?";
-        $params[] = $usuario_id;
-        $types .= 'i';
-    }
-    
     // Por padrão, oculta chamados fechados a menos que seja explicitamente filtrado
     if (empty($filtros['status']) || $filtros['status'] !== 'fechado') {
         $where_conditions[] = "c.status != 'fechado'";
@@ -187,11 +181,12 @@ function buscarChamadosComFiltro($conn, $filtros = [], $usuario_id = null, $usua
         $types .= 'i';
     }
     
-    $sql = "SELECT c.*, u.nome AS usuario_nome, u.posto_graduacao, u.nome_guerra,
-                   t.nome AS tecnico_nome
-            FROM chamados c 
-            JOIN usuarios u ON c.id_usuario_abriu = u.id
-            LEFT JOIN usuarios t ON c.id_tecnico_responsavel = t.id";
+$sql = "SELECT c.*, u.nome AS usuario_nome, u.posto_graduacao, u.nome_guerra,
+               t.nome AS tecnico_nome, t.posto_graduacao AS tecnico_posto, 
+               t.nome_guerra AS tecnico_nome_guerra
+        FROM chamados c 
+        JOIN usuarios u ON c.id_usuario_abriu = u.id
+        LEFT JOIN usuarios t ON c.id_tecnico_responsavel = t.id";
     
     if (!empty($where_conditions)) {
         $sql .= " WHERE " . implode(" AND ", $where_conditions);
@@ -203,7 +198,7 @@ function buscarChamadosComFiltro($conn, $filtros = [], $usuario_id = null, $usua
                 WHEN 'media' THEN 2 
                 WHEN 'baixa' THEN 3 
               END,
-              c.data_abertura DESC";
+              c.data_abertura";
     
     $stmt = $conn->prepare($sql);
     if (!$stmt) {

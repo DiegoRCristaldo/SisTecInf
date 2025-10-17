@@ -3,12 +3,6 @@ include 'includes/auth.php';
 include 'includes/db.php';
 include 'includes/funcoes_chamado.php';
 
-// Verificar se usuário tem permissão
-if ($_SESSION['usuario_tipo'] !== 'admin' && $_SESSION['usuario_tipo'] !== 'tecnico') {
-    header("Location: index.php?msg=acesso_negado");
-    exit;
-}
-
 // Filtros
 $filtro_status = isset($_GET['status']) ? $_GET['status'] : '';
 $filtro_prioridade = isset($_GET['prioridade']) ? $_GET['prioridade'] : '';
@@ -169,7 +163,7 @@ require 'header.php';
                             <?php if ($result->num_rows > 0): ?>
                                 <?php while ($row = $result->fetch_assoc()): ?>
                                     <tr>
-                                        <td><strong>#<?= $row['id'] ?></strong></td>
+                                        <td><strong><?= $row['id'] ?></strong></td>
                                         <td>
                                             <div class="fw-semibold"><?= htmlspecialchars($row['titulo']) ?></div>
                                             <small class="text-muted"><?= substr(strip_tags($row['descricao']), 0, 50) ?>...</small>
@@ -193,7 +187,7 @@ require 'header.php';
                                         </td>
                                         <td>
                                             <?php if (!empty($row['tecnico_nome'])): ?>
-                                                <?= htmlspecialchars($row['tecnico_nome']) ?>
+                                                <?= htmlspecialchars(formatarPatente($row['tecnico_posto'] ?? '')) . ' ' . htmlspecialchars($row['tecnico_nome_guerra'] ?? $row['tecnico_nome']) ?>
                                             <?php else: ?>
                                                 <span class="text-muted">Não atribuído</span>
                                             <?php endif; ?>

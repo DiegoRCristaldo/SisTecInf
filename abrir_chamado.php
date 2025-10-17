@@ -72,6 +72,8 @@ $secoes = [
         '4ªSeção',
         'Almoxarifado',
         'Aprovisionamento',
+        'Assessoria Juridica',
+        'CF CON',
         'COL',
         'Comandante CCAp',
         'Conformidade e Gestão',
@@ -81,7 +83,6 @@ $secoes = [
         'Relações Públicas',
         'SALC',
         'Sargenteação CCAp',
-        'Seção de Apoio Juridico',
         'Seção de pagamento',
         'Seção de Saúde',
         'Secretária',
@@ -95,6 +96,7 @@ $secoes = [
         'Comandante CM',
         'Funilaria',
         'Furriel CM',
+        'GCM',
         'Pelotão de Apoio',
         'Pelotão de Apoio CL V',
         'Pelotão de evacuação',
@@ -128,7 +130,7 @@ require 'header.php';
 </head>
 <body class="bg-light">
 <div class="container mt-5">
-    <h2 class="mb-4">Abrir Chamado</h2>
+    <h2 class="mb-4">📝 Abrir Chamado</h2>
 
     <?php if ($msg): ?>
         <div class="alert alert-<?= strpos($msg, 'sucesso') !== false ? 'success' : 'danger' ?>"><?= $msg ?></div>

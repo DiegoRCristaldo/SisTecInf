@@ -7,7 +7,7 @@ if ($_SESSION['usuario_tipo'] === 'usuario') {
     die("Acesso negado!");
 }
 
-$result = $conn->query("SELECT * FROM equipamentos ORDER BY nome ASC");
+$result = $conn->query("SELECT * FROM equipamentos ORDER BY ip ASC");
 
 require 'header.php';
 
@@ -16,11 +16,15 @@ require 'header.php';
 <body class="bg-light">
 
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary">Gerenciar Equipamentos</h2>
-        <a href="equipamento_form.php" class="btn btn-success">
-            <i class="bi bi-plus-circle"></i> Novo Equipamento
-        </a>
+    <div class="d-flex flex-column mb-4">
+        <h2 class="mb-0">💻 Gerenciar Equipamentos</h2>
+        <div class="d-flex justify-content-between">
+            <div class="mt-3">
+                <a href="index.php" class="btn btn-secondary">⬅ Voltar ao Menu</a>
+            </div>
+            <!-- Adicionar Equipamento-->
+            <a href="equipamento_form.php" class="btn btn-primary mb-3 w-25">+ Novo Equipamento</a>
+        </div>
     </div>
 
     <div class="card shadow-sm">
@@ -42,14 +46,14 @@ require 'header.php';
                             <td><?= $row['id'] ?></td>
                             <td><?= htmlspecialchars($row['nome']) ?></td>
                             <td><?= htmlspecialchars($row['ip']) ?></td>
-                            <td><?= htmlspecialchars($row['secao']) ?></td>
-                            <td class="text-center">
-                                <a href="equipamento_form.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-primary">
+                            <td><?= htmlspecialchars($row['secao'] ?? '') ?></td>
+                            <td class="d-flex text-center">
+                                <a class="btn btn-sm btn-primary w-100 m-1" href="equipamento_form.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-primary">
                                     <i class="bi bi-pencil"></i> Editar
                                 </a>
                                 <a href="equipamento_excluir.php?id=<?= $row['id'] ?>" 
                                    onclick="return confirm('Tem certeza que deseja excluir?')"
-                                   class="btn btn-sm btn-danger">
+                                   class="btn btn-sm btn-danger w-100 m-1">
                                     <i class="bi bi-trash"></i> Excluir
                                 </a>
                             </td>
@@ -59,12 +63,6 @@ require 'header.php';
                 </table>
             </div>
         </div>
-    </div>
-
-    <div class="mt-3">
-        <a href="index.php" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Voltar
-        </a>
     </div>
 </div>
 

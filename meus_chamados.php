@@ -38,7 +38,7 @@ require 'header.php';
 </head>
 <body class="bg-light">
     <div class="container py-4">
-        <h2 class="mb-4">Meus Chamados</h2>
+        <h2 class="mb-4">📋 Meus Chamados</h2>
 
         <form method="get" class="row g-3 align-items-center mb-4">
             <div class="col-auto">

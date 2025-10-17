@@ -202,7 +202,7 @@ require 'header.php';
                 </div>
 
                 <!-- Formulário de Edição -->
-                <?php if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecnico'): ?>
+                <?php if ($_SESSION['usuario_tipo'] === 'admin'): ?>
                 <div class="card">
                     <div class="card-header bg-dark text-white">
                         <h5 class="mb-0">⚡ Editar Chamado</h5>
@@ -232,7 +232,6 @@ require 'header.php';
                                 </div>
                             </div>
 
-                            <?php if ($_SESSION['usuario_tipo'] === 'admin'): ?>
                             <div class="mb-3">
                                 <label class="form-label">Técnico Responsável</label>
                                 <select name="tecnico_responsavel" class="form-select">
@@ -255,7 +254,6 @@ require 'header.php';
                                     <?php endif; ?>
                                 </small>
                             </div>
-                            <?php endif; ?>
 
                             <div class="d-grid gap-2 d-md-flex">
                                 <button type="submit" name="atualizar_status" class="btn btn-salvar">💾 Salvar Alterações</button>
