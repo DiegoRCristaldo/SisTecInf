@@ -8,17 +8,6 @@ $msg = '';
 // Pegando nome do usuário logado
 $nome_usuario = formatarPatente($_SESSION['usuario_posto_graduacao']) . ' ' . $_SESSION['usuario_nome_guerra'] ?? 'Usuário';
 
-// Pegando IP do cliente
-function getUserIP() {
-    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-        return $_SERVER['HTTP_CLIENT_IP'];
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        return explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
-    } else {
-        return $_SERVER['REMOTE_ADDR'];
-    }
-}
-
 // Array com todas as categorias organizadas por tipo de solicitação
 $categorias = [
     'apoio' => [
@@ -116,7 +105,11 @@ $secoes = [
 ];
 
 $ip_usuario = getUserIP();
-$titulo_padrao = $nome_usuario . ' - ' . $ip_usuario;
+if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecnico') {
+    $titulo_padrao = $nome_usuario . ' - ' . $ip_usuario;
+} else {
+    $titulo_padrao = $nome_usuario;
+}
 
 // Verifica se há mensagem de sucesso
 if (isset($_GET['msg']) && $_GET['msg'] === 'sucesso') {
@@ -153,9 +146,7 @@ require 'header.php';
         </div>
 
         <!-- Container dinâmico para as categorias -->
-        <div id="container-categorias">
-            <!-- As categorias serão carregadas aqui via JavaScript -->
-        </div>
+        <div id="container-categorias"></div>
 
         <div class="mb-3">
             <label class="form-label">Descrição *</label>

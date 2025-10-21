@@ -98,9 +98,15 @@ foreach ($chamados as $chamado) {
     $tipo_label = $mapeamento_tipo[$tipo];
     $estatisticas['por_tipo'][$tipo_label] = ($estatisticas['por_tipo'][$tipo_label] ?? 0) + 1;
     
-    // Por dia
-    $data = date('d/m', strtotime($chamado['data_abertura']));
-    $estatisticas['por_dia'][$data] = ($estatisticas['por_dia'][$data] ?? 0) + 1;
+    // Por dia - armazenar com timestamp para ordenação
+    $timestamp = strtotime($chamado['data_abertura']);
+    $data_key = date('Y-m-d', $timestamp);
+    $data_label = date('d/m', $timestamp);
+    $estatisticas['por_dia'][$data_key] = [
+        'label' => $data_label,
+        'valor' => ($estatisticas['por_dia'][$data_key]['valor'] ?? 0) + 1,
+        'timestamp' => $timestamp
+    ];
     
     // Por companhia - usando o campo do banco
     $companhia = $chamado['companhia'];
@@ -123,13 +129,36 @@ foreach ($companhias_esperadas as $companhia) {
     }
 }
 
+// Ordenar as datas cronologicamente
+if (!empty($estatisticas['por_dia'])) {
+    // Ordenar por timestamp (mais antigo primeiro)
+    uasort($estatisticas['por_dia'], function($a, $b) {
+        return $a['timestamp'] <=> $b['timestamp'];
+    });
+    
+    // Criar arrays separados para labels e valores ordenados
+    $labels_ordenados = [];
+    $valores_ordenados = [];
+    
+    foreach ($estatisticas['por_dia'] as $item) {
+        $labels_ordenados[] = $item['label'];
+        $valores_ordenados[] = $item['valor'];
+    }
+    
+    $estatisticas['por_dia_ordenado'] = [
+        'labels' => $labels_ordenados,
+        'valores' => $valores_ordenados
+    ];
+} else {
+    $estatisticas['por_dia_ordenado'] = [
+        'labels' => ['Nenhum'],
+        'valores' => [0]
+    ];
+}
+
 // Ordenar os arrays
 ksort($estatisticas['por_tipo']);
 ksort($estatisticas['por_companhia']);
-
-if (empty($estatisticas['por_dia'])) {
-    $estatisticas['por_dia']['Nenhum'] = 0;
-}
 
 // Preparar dados para os gráficos
 function prepararDadosGrafico($dados) {
@@ -150,7 +179,7 @@ function prepararDadosGrafico($dados) {
 $grafico_status = prepararDadosGrafico($estatisticas['por_status']);
 $grafico_prioridade = prepararDadosGrafico($estatisticas['por_prioridade']);
 $grafico_tipo = prepararDadosGrafico($estatisticas['por_tipo']);
-$grafico_dia = prepararDadosGrafico($estatisticas['por_dia']);
+$grafico_dia = $estatisticas['por_dia_ordenado']; // Usar dados ordenados
 $grafico_companhia = prepararDadosGrafico($estatisticas['por_companhia']);
 
 require 'header.php';
@@ -326,7 +355,17 @@ require 'header.php';
                                 <?php foreach ($chamados as $chamado): ?>
                                 <tr>
                                     <td><?= $chamado['id'] ?></td>
-                                    <td><?= htmlspecialchars($chamado['titulo']) ?></td>
+                                    <td>
+                                        <?php
+                                        // Formatar o título: remover o IP se for usuário comum
+                                        $titulo = htmlspecialchars($chamado['titulo']);
+                                        if ($_SESSION['usuario_tipo'] === 'usuario') {
+                                            // Remove tudo após o último " - " (incluindo o IP)
+                                            $titulo = preg_replace('/ - [^-]+$/', '', $titulo);
+                                        }
+                                        echo $titulo;
+                                        ?>
+                                    </td>
                                     <td>
                                         <span class="badge bg-info">
                                             <?= $mapeamento_tipo[$chamado['tipo_solicitacao']] ?? 'Não definido' ?>

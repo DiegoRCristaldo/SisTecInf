@@ -63,6 +63,30 @@ if (isset($_GET['msg'])) {
 require 'header.php';
 
 ?>
+<style>
+.timeline {
+    position: relative;
+}
+
+.timeline-item {
+    position: relative;
+}
+
+.timeline-item:not(:last-child):before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 30px;
+    bottom: -25px;
+    width: 2px;
+    background-color: #e9ecef;
+}
+
+.comentario-box {
+    border-left: 4px solid #0dcaf0;
+    background-color: #f8f9fa !important;
+}
+</style>
 </head>
 <body class="bg-light">
     <div class="container py-4">
@@ -71,7 +95,17 @@ require 'header.php';
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h1 class="h3 mb-1">Chamado #<?= $chamado['id'] ?></h1>
-                    <h2 class="h5 mb-0"><?= htmlspecialchars($chamado['titulo']) ?></h2>
+                    <h2 class="h5 mb-0">
+                        <?php
+                        // Formatar o título: remover o IP se for usuário comum
+                        $titulo = htmlspecialchars($chamado['titulo']);
+                        if ($_SESSION['usuario_tipo'] === 'usuario') {
+                            // Remove tudo após o último " - " (incluindo o IP)
+                            $titulo = preg_replace('/ - [^-]+$/', '', $titulo);
+                        }
+                        echo $titulo;
+                        ?>
+                    </h2>
                 </div>
                 <div class="col-md-4 text-md-end">
                     <span class="badge badge-prioridade bg-<?= 
@@ -118,30 +152,102 @@ require 'header.php';
                 <!-- Histórico do Chamado -->
                 <div class="card">
                     <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0">🕒 Histórico</h5>
+                        <h5 class="mb-0">🕒 Histórico e Comentários</h5>
                     </div>
                     <div class="card-body">
-                        <?php if ($historico_result && $historico_result->num_rows > 0): ?>
-                            <?php while ($historico = $historico_result->fetch_assoc()): ?>
-                                <div class="historico-item">
-                                    <div class="d-flex justify-content-between">
-                                        <strong><?= htmlspecialchars($historico['acao']) ?></strong>
-                                        <small class="text-muted">
-                                            <?= date('d/m/Y H:i', strtotime($historico['data_acao'])) ?>
-                                        </small>
+                        <?php 
+                        // Buscar histórico
+                        $historico_result = buscarHistoricoChamado($conn, $chamado_id);
+                        // Buscar comentários
+                        $comentarios_result = buscarComentariosChamado($conn, $chamado_id);
+                        
+                        // Combinar histórico e comentários em uma única timeline
+                        $timeline = [];
+                        
+                        // Adicionar histórico
+                        if ($historico_result && $historico_result->num_rows > 0) {
+                            while ($item = $historico_result->fetch_assoc()) {
+                                $timeline[] = [
+                                    'tipo' => 'historico',
+                                    'data' => $item['data_acao'],
+                                    'acao' => $item['acao'],
+                                    'observacao' => $item['observacao'],
+                                    'posto_graduacao' => $item['tecnico_posto_graduacao'] ?? null,
+                                    'nome_guerra' => $item['tecnico_nome_guerra'] ?? null,
+                                    'tecnico_nome' => $item['tecnico_nome'] ?? null // Mantendo para compatibilidade
+                                ];
+                            }
+                        }
+                        
+                        // Adicionar comentários
+                        if ($comentarios_result && $comentarios_result->num_rows > 0) {
+                            while ($item = $comentarios_result->fetch_assoc()) {
+                                $timeline[] = [
+                                    'tipo' => 'comentario',
+                                    'data' => $item['data'],
+                                    'usuario_nome' => $item['nome'],
+                                    'usuario_guerra' => $item['nome_guerra'],
+                                    'usuario_posto' => $item['posto_graduacao'],
+                                    'comentario' => $item['comentario']
+                                ];
+                            }
+                        }
+                        
+                        // Ordenar por data (mais recente primeiro)
+                        usort($timeline, function($a, $b) {
+                            return strtotime($b['data']) - strtotime($a['data']);
+                        });
+                        ?>
+                        
+                        <?php if (!empty($timeline)): ?>
+                            <div class="timeline">
+                                <?php foreach ($timeline as $item): ?>
+                                    <div class="timeline-item mb-4">
+                                        <div class="d-flex">
+                                            <div class="timeline-icon me-3">
+                                                <?php if ($item['tipo'] === 'comentario'): ?>
+                                                    <span class="badge bg-info">💬</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-primary">📝</span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="timeline-content flex-grow-1">
+                                                <div class="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <?php if ($item['tipo'] === 'comentario'): ?>
+                                                        <strong>
+                                                            <?= formatarPatente($item['usuario_posto']) ?> <?= htmlspecialchars($item['usuario_guerra']) ?>
+                                                        </strong>
+                                                        <span class="text-muted">comentou:</span>
+                                                    <?php else: ?>
+                                                        <strong><?= htmlspecialchars($item['acao']) ?></strong>
+                                                        <?php if (!empty($item['posto_graduacao'])): ?>
+                                                            <span class="text-muted">por <?= formatarPatente($item['posto_graduacao']) ?> <?= htmlspecialchars($item['nome_guerra']) ?></span>
+                                                        <?php elseif (!empty($item['tecnico_nome'])): ?>
+                                                            <!-- Fallback para compatibilidade -->
+                                                            <span class="text-muted">por <?= htmlspecialchars($item['tecnico_nome']) ?></span>
+                                                        <?php endif; ?>
+                                                    <?php endif; ?>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        <?= date('d/m/Y H:i', strtotime($item['data'])) ?>
+                                                    </small>
+                                                </div>
+                                                
+                                                <?php if ($item['tipo'] === 'comentario'): ?>
+                                                    <div class="comentario-box mt-2 p-3 bg-light rounded">
+                                                        <?= nl2br(htmlspecialchars($item['comentario'])) ?>
+                                                    </div>
+                                                <?php elseif (!empty($item['observacao'])): ?>
+                                                    <p class="mb-1 mt-1"><?= htmlspecialchars($item['observacao']) ?></p>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <?php if (!empty($historico['observacao'])): ?>
-                                        <p class="mb-1"><?= htmlspecialchars($historico['observacao']) ?></p>
-                                    <?php endif; ?>
-                                    <?php if (!empty($historico['tecnico_nome'])): ?>
-                                        <small class="text-muted">
-                                            Por: <?= htmlspecialchars($historico['tecnico_nome']) ?>
-                                        </small>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endwhile; ?>
+                                <?php endforeach; ?>
+                            </div>
                         <?php else: ?>
-                            <p class="text-muted">Nenhum histórico registrado.</p>
+                            <p class="text-muted">Nenhum histórico ou comentário registrado.</p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -254,7 +360,11 @@ require 'header.php';
                                     <?php endif; ?>
                                 </small>
                             </div>
-
+                            <div class="mb-3">
+                                <label class="form-label">Comentário (Resposta ao usuário)</label>
+                                <textarea name="comentario" class="form-control" rows="4" placeholder="Digite aqui sua resposta ou comentário para o usuário..."></textarea>
+                                <small class="text-muted">Este comentário ficará visível no histórico do chamado.</small>
+                            </div>
                             <div class="d-grid gap-2 d-md-flex">
                                 <button type="submit" name="atualizar_status" class="btn btn-salvar">💾 Salvar Alterações</button>
                                 <a href="meus_chamados.php" class="btn btn-outline-secondary">📋 Meus Chamados</a>

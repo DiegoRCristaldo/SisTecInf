@@ -36,6 +36,7 @@ require 'header.php';
                             <th>ID</th>
                             <th>Nome</th>
                             <th>IP</th>
+                            <th>MAC</th>
                             <th>Seção</th>
                             <th class="text-center">Ações</th>
                         </tr>
@@ -46,6 +47,7 @@ require 'header.php';
                             <td><?= $row['id'] ?></td>
                             <td><?= htmlspecialchars($row['nome']) ?></td>
                             <td><?= htmlspecialchars($row['ip']) ?></td>
+                            <td><?= htmlspecialchars(strtoupper($row['mac'])) ?></td>
                             <td><?= htmlspecialchars($row['secao'] ?? '') ?></td>
                             <td class="d-flex text-center">
                                 <a class="btn btn-sm btn-primary w-100 m-1" href="equipamento_form.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-primary">

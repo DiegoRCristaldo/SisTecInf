@@ -55,7 +55,10 @@ function buscarTecnicos($conn) {
  * Busca histórico de um chamado
  */
 function buscarHistoricoChamado($conn, $chamado_id) {
-    $sql = "SELECT h.*, u.nome AS tecnico_nome 
+    $sql = "SELECT h.*, 
+                   u.nome AS tecnico_nome,
+                   u.nome_guerra AS tecnico_nome_guerra, 
+                   u.posto_graduacao AS tecnico_posto_graduacao
             FROM historico_chamados h 
             LEFT JOIN usuarios u ON h.tecnico_id = u.id 
             WHERE h.chamado_id = ? 
@@ -96,6 +99,8 @@ function atualizarChamado($conn, $chamado_id, $dados, $usuario_id, $usuario_tipo
     $novo_status = $dados['status'];
     $prioridade = $dados['prioridade'];
     $tecnico_id = $usuario_id;
+
+    $comentario = $dados['comentario'] ?? '';
     
     // Se for admin e tiver selecionado um técnico, usar o técnico selecionado
     if ($usuario_tipo === 'admin' && !empty($dados['tecnico_responsavel'])) {
@@ -134,6 +139,11 @@ function atualizarChamado($conn, $chamado_id, $dados, $usuario_id, $usuario_tipo
             $stmt_historico->execute();
             $stmt_historico->close();
         }
+
+        // Adicionar comentário se existir
+        if (!empty(trim($comentario))) {
+            adicionarComentarioChamado($conn, $chamado_id, $usuario_id, $comentario);
+        }
         
         return true;
     }
@@ -148,6 +158,12 @@ function buscarChamadosComFiltro($conn, $filtros = [], $usuario_id = null, $usua
     $where_conditions = [];
     $params = [];
     $types = '';
+    
+    if ($usuario_tipo !== 'admin' && $usuario_tipo !== 'tecnico') {
+        $where_conditions[] = "c.id_usuario_abriu = ?";
+        $params[] = $usuario_id;
+        $types .= 'i';
+    }
     
     // Por padrão, oculta chamados fechados a menos que seja explicitamente filtrado
     if (empty($filtros['status']) || $filtros['status'] !== 'fechado') {
@@ -181,12 +197,11 @@ function buscarChamadosComFiltro($conn, $filtros = [], $usuario_id = null, $usua
         $types .= 'i';
     }
     
-$sql = "SELECT c.*, u.nome AS usuario_nome, u.posto_graduacao, u.nome_guerra,
-               t.nome AS tecnico_nome, t.posto_graduacao AS tecnico_posto, 
-               t.nome_guerra AS tecnico_nome_guerra
-        FROM chamados c 
-        JOIN usuarios u ON c.id_usuario_abriu = u.id
-        LEFT JOIN usuarios t ON c.id_tecnico_responsavel = t.id";
+    $sql = "SELECT c.*, u.nome AS usuario_nome, u.posto_graduacao, u.nome_guerra,
+                   t.nome AS tecnico_nome
+            FROM chamados c 
+            JOIN usuarios u ON c.id_usuario_abriu = u.id
+            LEFT JOIN usuarios t ON c.id_tecnico_responsavel = t.id";
     
     if (!empty($where_conditions)) {
         $sql .= " WHERE " . implode(" AND ", $where_conditions);
@@ -229,11 +244,6 @@ function buscarEstatisticasChamados($conn, $incluir_fechados = false) {
         SUM(CASE WHEN prioridade = 'media' THEN 1 ELSE 0 END) as media,
         SUM(CASE WHEN prioridade = 'baixa' THEN 1 ELSE 0 END) as baixa
     FROM chamados";
-    
-    // Se não incluir fechados, adiciona where
-    if (!$incluir_fechados) {
-        $sql .= " WHERE status != 'fechado'";
-    }
     
     $stmt = $conn->prepare($sql);
     if (!$stmt || !$stmt->execute()) {
@@ -288,7 +298,7 @@ function buscarArquivosChamado($conn, $chamado_id) {
 }
 
 /**
- * Formata o tamanho do arquivo para leitura humana
+ * Formata o tamanho do arquivo para leitura
  */
 function formatarTamanhoArquivo($bytes) {
     if ($bytes == 0) return '0 Bytes';
@@ -322,5 +332,123 @@ function formatarPatente($codigo_patente) {
     ];
     
     return $patentes[$codigo_patente] ?? $codigo_patente;
+}
+
+// Pegando IP do cliente
+function getUserIP() {
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        return $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        return explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
+    } else {
+        return $_SERVER['REMOTE_ADDR'];
+    }
+}
+
+/**
+ * Calcula a posição na fila de prioridade para atendimento
+ */
+function calcularPosicaoFila($conn, $prioridade, $data_abertura, $chamado_id = null) {
+    // Definir pesos para prioridades
+    $pesos_prioridade = [
+        'alta' => 3,
+        'media' => 2, 
+        'baixa' => 1
+    ];
+    
+    // Buscar todos os chamados ativos (não fechados) ordenados por prioridade e data
+    $sql = "SELECT id, prioridade, data_abertura 
+            FROM chamados 
+            WHERE status != 'fechado' 
+            ORDER BY 
+                CASE prioridade 
+                    WHEN 'alta' THEN 1 
+                    WHEN 'media' THEN 2 
+                    WHEN 'baixa' THEN 3 
+                END,
+                data_abertura ASC";
+    
+    $result = $conn->query($sql);
+    
+    if (!$result || $result->num_rows === 0) {
+        return 1;
+    }
+    
+    $posicao = 1;
+    $encontrado = false;
+    
+    while ($chamado = $result->fetch_assoc()) {
+        if ($chamado_id && $chamado['id'] == $chamado_id) {
+            $encontrado = true;
+            break;
+        }
+        $posicao++;
+    }
+    
+    return $posicao;
+}
+
+/**
+ * Função para exibir a posição na fila com ícone
+ */
+function exibirPosicaoFila($posicao) {
+    if ($posicao == 1) {
+        return '<span class="badge bg-success" title="Próximo a ser atendido">1º 🔥</span>';
+    } elseif ($posicao <= 3) {
+        return '<span class="badge bg-warning text-dark" title="Em breve">' . $posicao . 'º ⚡</span>';
+    } else {
+        return '<span class="badge bg-secondary" title="Na fila">' . $posicao . 'º 📋</span>';
+    }
+}
+
+/**
+ * Função completa para fila de prioridade (compatibilidade)
+ */
+function filaPrioridadeAtendimento($conn, $prioridade, $data_abertura, $chamado_id = null) {
+    $posicao = calcularPosicaoFila($conn, $prioridade, $data_abertura, $chamado_id);
+    return exibirPosicaoFila($posicao);
+}
+
+/**
+ * Adiciona um comentário a um chamado
+ */
+function adicionarComentarioChamado($conn, $chamado_id, $usuario_id, $comentario) {
+    $sql = "INSERT INTO comentarios (id_chamado, id_usuario, comentario) VALUES (?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    
+    if (!$stmt) {
+        return false;
+    }
+    
+    $stmt->bind_param("iis", $chamado_id, $usuario_id, $comentario);
+    
+    if ($stmt->execute()) {
+        return true;
+    }
+    
+    return false;
+}
+
+/**
+ * Busca comentários de um chamado
+ */
+function buscarComentariosChamado($conn, $chamado_id) {
+    $sql = "SELECT c.*, u.nome, u.nome_guerra, u.posto_graduacao 
+            FROM comentarios c 
+            JOIN usuarios u ON c.id_usuario = u.id 
+            WHERE c.id_chamado = ? 
+            ORDER BY c.data ASC";
+    
+    $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        return false;
+    }
+    
+    $stmt->bind_param("i", $chamado_id);
+    if (!$stmt->execute()) {
+        return false;
+    }
+    
+    return $stmt->get_result();
 }
 ?>

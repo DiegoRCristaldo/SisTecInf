@@ -149,9 +149,8 @@ require 'header.php';
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-dark">
                             <tr>
-                                <th>ID</th>
+                                <th>Fila</th>
                                 <th>Título</th>
-                                <th>Solicitante</th>
                                 <th>Prioridade</th>
                                 <th>Status</th>
                                 <th>Técnico</th>
@@ -163,14 +162,20 @@ require 'header.php';
                             <?php if ($result->num_rows > 0): ?>
                                 <?php while ($row = $result->fetch_assoc()): ?>
                                     <tr>
-                                        <td><strong><?= $row['id'] ?></strong></td>
                                         <td>
-                                            <div class="fw-semibold"><?= htmlspecialchars($row['titulo']) ?></div>
-                                            <small class="text-muted"><?= substr(strip_tags($row['descricao']), 0, 50) ?>...</small>
+                                            <?= filaPrioridadeAtendimento($conn, $row['prioridade'], $row['data_abertura'], $row['id']) ?>
                                         </td>
                                         <td>
-                                            <div><?= htmlspecialchars(formatarPatente($row['posto_graduacao'])) ?></div>
-                                            <small class="text-muted"><?= htmlspecialchars($row['nome_guerra']) ?></small>
+                                            <?php
+                                            // Formatar o título: remover o IP se for usuário comum
+                                            $titulo = htmlspecialchars($row['titulo']);
+                                            if ($_SESSION['usuario_tipo'] === 'usuario') {
+                                                // Remove tudo após o último " - " (incluindo o IP)
+                                                $titulo = preg_replace('/ - [^-]+$/', '', $titulo);
+                                            }
+                                            ?>
+                                            <div class="fw-semibold"><?= $titulo ?></div>
+                                            <small class="text-muted"><?= substr(strip_tags($row['descricao']), 0, 50) ?>...</small>
                                         </td>
                                         <td>
                                             <span class="badge bg-<?= 
@@ -181,13 +186,13 @@ require 'header.php';
                                             </span>
                                         </td>
                                         <td>
-                                            <span class="badge badge-status-<?= $row['status'] ?>">
+                                             <span class="badge badge-status-<?= $row['status'] ?>">
                                                 <?= ucfirst(str_replace('_', ' ', $row['status'])) ?>
                                             </span>
                                         </td>
                                         <td>
                                             <?php if (!empty($row['tecnico_nome'])): ?>
-                                                <?= htmlspecialchars(formatarPatente($row['tecnico_posto'] ?? '')) . ' ' . htmlspecialchars($row['tecnico_nome_guerra'] ?? $row['tecnico_nome']) ?>
+                                                <?= htmlspecialchars(formatarPatente($row['posto_graduacao'])) . ' ' . htmlspecialchars($row['nome_guerra']);?>
                                             <?php else: ?>
                                                 <span class="text-muted">Não atribuído</span>
                                             <?php endif; ?>
@@ -204,7 +209,7 @@ require 'header.php';
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="8" class="text-center py-4">
+                                    <td colspan="7" class="text-center py-4">
                                         <div class="text-muted">
                                             <i class="bi bi-inbox" style="font-size: 3rem;"></i>
                                             <p class="mt-2">Nenhum chamado encontrado.</p>
@@ -220,17 +225,6 @@ require 'header.php';
                 </div>
             </div>
         </div>
-
-        <?php if ($result->num_rows > 0): ?>
-        <div class="d-flex justify-content-between align-items-center mt-3">
-            <div class="text-muted">
-                Mostrando <?= $result->num_rows ?> chamado(s)
-                <?php if (empty($filtro_status)): ?>
-                    <span class="text-info">(fechados ocultos)</span>
-                <?php endif; ?>
-            </div>
-        </div>
-        <?php endif; ?>
 
         <a href="index.php" class="btn btn-secondary mt-3">⬅ Voltar ao Menu</a>
     </div>

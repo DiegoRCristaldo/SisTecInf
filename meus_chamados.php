@@ -17,23 +17,13 @@ if (!$result) {
     die("Erro ao buscar chamados");
 }
 
-// No meus_chamados.php, atualize a query para também ocultar fechados:
+// Obter IP atual apenas para admin/tecnico
+$ip_atual = '';
 if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecnico') {
-    $sql = "SELECT c.*, u.nome AS usuario_nome 
-            FROM chamados c 
-            JOIN usuarios u ON c.id_usuario_abriu = u.id
-            WHERE c.status != 'fechado'"; // Adicione esta condição
-    // ... resto do código
-} else {
-    $sql = "SELECT c.*, u.nome AS usuario_nome 
-            FROM chamados c 
-            JOIN usuarios u ON c.id_usuario_abriu = u.id
-            WHERE c.id_usuario_abriu = ? AND c.status != 'fechado'"; // E aqui também
-    // ... resto do código
+    $ip_atual = getUserIP();
 }
 
 require 'header.php';
-
 ?>
 </head>
 <body class="bg-light">
@@ -64,8 +54,7 @@ require 'header.php';
             <table class="table table-striped table-hover align-middle">
                 <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
-                        <th>Título</th>
+                        <th>Fila</th>
                         <th>Usuário</th>
                         <th>Prioridade</th>
                         <th>Status</th>
@@ -77,9 +66,15 @@ require 'header.php';
                     <?php if ($result->num_rows > 0): ?>
                         <?php while ($row = $result->fetch_assoc()): ?>
                             <tr>
-                                <td><?= $row['id'] ?></td>
-                                <td><?= htmlspecialchars($row['titulo']) ?></td>
-                                <td><?= htmlspecialchars($row['usuario_nome']) ?></td>
+                                <td>
+                                    <?= filaPrioridadeAtendimento($conn, $row['prioridade'], $row['data_abertura'], $row['id']) ?>
+                                </td>
+                                <td>
+                                    <?= formatarPatente($row['posto_graduacao']) ?> <?= htmlspecialchars($row['nome_guerra'] ?? '')?>
+                                    <?php if (!empty($row['posto_graduacao'])): ?>
+                                        <br><small class="text-muted"><?= htmlspecialchars($row['usuario_nome'])?></small>
+                                    <?php endif; ?>
+                                </td>
                                 <td>
                                     <span class="badge bg-<?= 
                                         $row['prioridade'] === 'alta' ? 'danger' : 
@@ -95,13 +90,13 @@ require 'header.php';
                                 </td>
                                 <td><?= date('d/m/Y H:i', strtotime($row['data_abertura'])) ?></td>
                                 <td>
-                                    <a href="detalhar_chamado.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-primary">Ver</a>
+                                    <a href="detalhar_chamado.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-primary">👁️ Ver</a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="7" class="text-center">Nenhum chamado encontrado.</td>
+                            <td colspan="<?= ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecnico') ? '8' : '7' ?>" class="text-center">Nenhum chamado encontrado.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
