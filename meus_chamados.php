@@ -70,8 +70,8 @@ require 'header.php';
                                     <?= filaPrioridadeAtendimento($conn, $row['prioridade'], $row['data_abertura'], $row['id']) ?>
                                 </td>
                                 <td>
-                                    <?= formatarPatente($row['posto_graduacao']) ?> <?= htmlspecialchars($row['nome_guerra'] ?? '')?>
-                                    <?php if (!empty($row['posto_graduacao'])): ?>
+                                    <?= formatarPatente($row['usuario_posto']) ?> <?= htmlspecialchars($row['usuario_nome_guerra'] ?? '')?>
+                                    <?php if (!empty($row['usuario_posto'])): ?>
                                         <br><small class="text-muted"><?= htmlspecialchars($row['usuario_nome'])?></small>
                                     <?php endif; ?>
                                 </td>
