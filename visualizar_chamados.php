@@ -191,12 +191,12 @@ require 'header.php';
                                             </span>
                                         </td>
                                         <td>
-                                            <?php if (!empty($row['tecnico_nome'])): ?>
-                                                <?= htmlspecialchars(formatarPatente($row['posto_graduacao'])) . ' ' . htmlspecialchars($row['nome_guerra']);?>
-                                            <?php else: ?>
-                                                <span class="text-muted">Não atribuído</span>
-                                            <?php endif; ?>
-                                        </td>
+    <?php if (!empty($row['tecnico_nome'])): ?>
+        <?= htmlspecialchars(formatarPatente($row['tecnico_posto'])) . ' ' . htmlspecialchars($row['tecnico_nome_guerra']);?>
+    <?php else: ?>
+        <span class="text-muted">Não atribuído</span>
+    <?php endif; ?>
+</td>
                                         <td>
                                             <small><?= date('d/m/Y', strtotime($row['data_abertura'])) ?></small>
                                             <br>

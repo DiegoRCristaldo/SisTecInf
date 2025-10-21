@@ -197,8 +197,14 @@ function buscarChamadosComFiltro($conn, $filtros = [], $usuario_id = null, $usua
         $types .= 'i';
     }
     
-    $sql = "SELECT c.*, u.nome AS usuario_nome, u.posto_graduacao, u.nome_guerra,
-                   t.nome AS tecnico_nome
+    // CORREÇÃO: Buscar informações do técnico em vez do usuário que abriu o chamado
+    $sql = "SELECT c.*, 
+                   u.nome AS usuario_nome, 
+                   u.posto_graduacao AS usuario_posto, 
+                   u.nome_guerra AS usuario_nome_guerra,
+                   t.nome AS tecnico_nome,
+                   t.posto_graduacao AS tecnico_posto,
+                   t.nome_guerra AS tecnico_nome_guerra
             FROM chamados c 
             JOIN usuarios u ON c.id_usuario_abriu = u.id
             LEFT JOIN usuarios t ON c.id_tecnico_responsavel = t.id";
@@ -213,7 +219,7 @@ function buscarChamadosComFiltro($conn, $filtros = [], $usuario_id = null, $usua
                 WHEN 'media' THEN 2 
                 WHEN 'baixa' THEN 3 
               END,
-              c.data_abertura";
+              c.data_abertura DESC";
     
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
