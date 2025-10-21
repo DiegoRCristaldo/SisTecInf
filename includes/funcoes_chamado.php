@@ -219,7 +219,7 @@ function buscarChamadosComFiltro($conn, $filtros = [], $usuario_id = null, $usua
                 WHEN 'media' THEN 2 
                 WHEN 'baixa' THEN 3 
               END,
-              c.data_abertura DESC";
+              c.data_abertura";
     
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
