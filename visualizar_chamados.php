@@ -16,8 +16,8 @@ if ($filtro_prioridade) $filtros['prioridade'] = $filtro_prioridade;
 if ($filtro_search) $filtros['search'] = $filtro_search;
 if ($filtro_tecnico) $filtros['tecnico'] = $filtro_tecnico;
 
-// Buscar chamados usando a função centralizada
-$result = buscarChamadosComFiltro($conn, $filtros, $_SESSION['usuario_id'], $_SESSION['usuario_tipo']);
+// Buscar TODOS os chamados (sem filtrar por usuário)
+$result = buscarChamadosComFiltro($conn, $filtros);
 
 if (!$result) {
     die("Erro ao buscar chamados");
@@ -150,7 +150,7 @@ require 'header.php';
                         <thead class="table-dark">
                             <tr>
                                 <th>Fila</th>
-                                <th>Título</th>
+                                <th>Usuário</th>
                                 <th>Prioridade</th>
                                 <th>Status</th>
                                 <th>Técnico</th>
@@ -175,7 +175,11 @@ require 'header.php';
                                             }
                                             ?>
                                             <div class="fw-semibold"><?= $titulo ?></div>
-                                            <small class="text-muted"><?= substr(strip_tags($row['descricao']), 0, 50) ?>...</small>
+                                            <small class="text-muted">
+                                            <?php if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecnico'): ?>
+                                                <?= substr(strip_tags($row['descricao']), 0, 50) ?>...
+                                            <?php endif; ?>
+                                            </small>
                                         </td>
                                         <td>
                                             <span class="badge bg-<?= 
@@ -191,12 +195,12 @@ require 'header.php';
                                             </span>
                                         </td>
                                         <td>
-    <?php if (!empty($row['tecnico_nome'])): ?>
-        <?= htmlspecialchars(formatarPatente($row['tecnico_posto'])) . ' ' . htmlspecialchars($row['tecnico_nome_guerra']);?>
-    <?php else: ?>
-        <span class="text-muted">Não atribuído</span>
-    <?php endif; ?>
-</td>
+                                            <?php if (!empty($row['tecnico_nome'])): ?>
+                                                <?= htmlspecialchars(formatarPatente($row['tecnico_posto'])) . ' ' . htmlspecialchars($row['tecnico_nome_guerra']);?>
+                                            <?php else: ?>
+                                                <span class="text-muted">Não atribuído</span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td>
                                             <small><?= date('d/m/Y', strtotime($row['data_abertura'])) ?></small>
                                             <br>

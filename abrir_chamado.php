@@ -136,6 +136,20 @@ require 'header.php';
         </div>
 
         <div class="mb-3">
+            <label class="form-label">Sistema Operacional *</label>
+            <div class="d-flex gap-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="sistema_operacional" id="windows" value="Windows" required>
+                    <label class="form-check-label" for="windows">Windows</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="sistema_operacional" id="linux" value="Linux" required>
+                    <label class="form-check-label" for="linux">Linux</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
             <label class="form-label">Tipo de Solicitação *</label>
             <select name="tipo_solicitacao" id="tipo_solicitacao" class="form-select" required>
                 <option value="">Selecione...</option>

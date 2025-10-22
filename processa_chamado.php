@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 // Coletar dados do formulário
 $titulo = trim($_POST['titulo']);
+$sistema_operacional = $_POST['sistema_operacional'];
 $descricao = trim($_POST['descricao']);
 $prioridade = $_POST['prioridade'] ?? 'baixa';
 $tipo_solicitacao = $_POST['tipo_solicitacao'] ?? '';
@@ -26,7 +27,8 @@ if (empty($tipo_solicitacao) || empty($companhia)) {
 
 // Combinar informações adicionais na descrição
 $descricao_completa = $descricao . "\n\n";
-$descricao_completa .= "--- INFORMAÇÕES ADICIONAIS ---\n";
+$descricao_completa .= "--- DESCRIÇÃO ---\n";
+$descricao_completa .= "Sistema Operacional: " . ucfirst($sistema_operacional) . "\n";
 $descricao_completa .= "Tipo de Solicitação: " . ucfirst($tipo_solicitacao) . "\n";
 if (!empty($categoria)) {
     $descricao_completa .= "Categoria: " . $categoria . "\n";
@@ -64,14 +66,15 @@ if (isset($_FILES['anexar_arquivo']) && $_FILES['anexar_arquivo']['error'][0] ==
 }
 
 // Preparar e executar a query - AGORA COM OS NOVOS CAMPOS
-$sql = "INSERT INTO chamados (titulo, descricao, tipo_solicitacao, companhia, secao, prioridade, id_usuario_abriu, arquivos) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+$sql = "INSERT INTO chamados (titulo, sistema_operacional, descricao, tipo_solicitacao, companhia, secao, prioridade, id_usuario_abriu, arquivos) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 $stmt = $conn->prepare($sql);
 
 if ($stmt) {
-    $stmt->bind_param("ssssssis", 
+    $stmt->bind_param("sssssssis", 
         $titulo, 
+        $sistema_operacional,
         $descricao_completa, 
         $tipo_solicitacao, 
         $companhia, 

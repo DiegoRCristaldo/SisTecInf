@@ -58,6 +58,7 @@ require 'header.php';
                         <th>Usuário</th>
                         <th>Prioridade</th>
                         <th>Status</th>
+                        <th>Técnico</th>
                         <th>Data Abertura</th>
                         <th>Ações</th>
                     </tr>
@@ -70,10 +71,17 @@ require 'header.php';
                                     <?= filaPrioridadeAtendimento($conn, $row['prioridade'], $row['data_abertura'], $row['id']) ?>
                                 </td>
                                 <td>
-                                    <?= formatarPatente($row['usuario_posto']) ?> <?= htmlspecialchars($row['usuario_nome_guerra'] ?? '')?>
-                                    <?php if (!empty($row['usuario_posto'])): ?>
-                                        <br><small class="text-muted"><?= htmlspecialchars($row['usuario_nome'])?></small>
-                                    <?php endif; ?>
+                                    <?php
+                                    // Formatar o título: remover o IP se for usuário comum
+                                    $titulo = htmlspecialchars($row['titulo']);
+                                    if ($_SESSION['usuario_tipo'] === 'usuario') {
+                                        // Remove tudo após o último " - " (incluindo o IP)
+                                        $titulo = preg_replace('/ - [^-]+$/', '', $titulo);
+                                    }
+                                    ?>
+                                    <div class="fw-semibold"><?= $titulo ?></div>
+                                    <small class="text-muted"><?= substr(strip_tags($row['descricao']), 0, 50) ?>...</small>
+                                
                                 </td>
                                 <td>
                                     <span class="badge bg-<?= 
@@ -88,16 +96,20 @@ require 'header.php';
                                         <?= ucfirst(str_replace('_', ' ', $row['status'])) ?>
                                     </span>
                                 </td>
-                                <td><?= date('d/m/Y H:i', strtotime($row['data_abertura'])) ?></td>
+                                <td>
+                                    <?php if (!empty($row['tecnico_nome'])): ?>
+                                        <?= htmlspecialchars(formatarPatente($row['tecnico_posto'])) . ' ' . htmlspecialchars($row['tecnico_nome_guerra']);?>
+                                    <?php else: ?>
+                                        <span class="text-muted">Não atribuído</span>
+                                    <?php endif; ?>
+                                </td>                                <td><?= date('d/m/Y H:i', strtotime($row['data_abertura'])) ?></td>
                                 <td>
                                     <a href="detalhar_chamado.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-primary">👁️ Ver</a>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
-                        <tr>
-                            <td colspan="<?= ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecnico') ? '8' : '7' ?>" class="text-center">Nenhum chamado encontrado.</td>
-                        </tr>
+                        <td colspan="6" class="text-center">Nenhum chamado encontrado.</td>
                     <?php endif; ?>
                 </tbody>
             </table>

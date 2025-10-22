@@ -32,9 +32,19 @@ if ($_SESSION['usuario_tipo'] === 'admin') {
 }
 
 // Processar ação de atualização
-if (($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecnico') && 
-    $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['atualizar_status'])) {
-    
+$pode_atualizar = false;
+
+// Verificar se o usuário pode atualizar (admin OU técnico responsável por este chamado)
+if ($_SESSION['usuario_tipo'] === 'admin') {
+    $pode_atualizar = true;
+} elseif ($_SESSION['usuario_tipo'] === 'tecnico') {
+    // Verificar se é o técnico responsável por este chamado
+    if ($chamado['id_tecnico_responsavel'] == $_SESSION['usuario_id']) {
+        $pode_atualizar = true;
+    }
+}
+
+if ($pode_atualizar && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['atualizar_status'])) {
     if (atualizarChamado($conn, $chamado_id, $_POST, $_SESSION['usuario_id'], $_SESSION['usuario_tipo'])) {
         header("Location: detalhar_chamado.php?id=" . $chamado_id . "&msg=status_atualizado");
         exit;
@@ -63,30 +73,6 @@ if (isset($_GET['msg'])) {
 require 'header.php';
 
 ?>
-<style>
-.timeline {
-    position: relative;
-}
-
-.timeline-item {
-    position: relative;
-}
-
-.timeline-item:not(:last-child):before {
-    content: '';
-    position: absolute;
-    left: 15px;
-    top: 30px;
-    bottom: -25px;
-    width: 2px;
-    background-color: #e9ecef;
-}
-
-.comentario-box {
-    border-left: 4px solid #0dcaf0;
-    background-color: #f8f9fa !important;
-}
-</style>
 </head>
 <body class="bg-light">
     <div class="container py-4">
@@ -308,13 +294,28 @@ require 'header.php';
                 </div>
 
                 <!-- Formulário de Edição -->
-                <?php if ($_SESSION['usuario_tipo'] === 'admin'): ?>
+                <?php 
+                // Verificar se o usuário pode editar (admin OU técnico responsável)
+                $pode_editar = false;
+                if ($_SESSION['usuario_tipo'] === 'admin') {
+                    $pode_editar = true;
+                } elseif ($_SESSION['usuario_tipo'] === 'tecnico' && $chamado['id_tecnico_responsavel'] == $_SESSION['usuario_id']) {
+                    $pode_editar = true;
+                }
+
+                if ($pode_editar): 
+                ?>
                 <div class="card">
                     <div class="card-header bg-dark text-white">
                         <h5 class="mb-0">⚡ Editar Chamado</h5>
                     </div>
                     <div class="card-body">
                         <form method="POST">
+                            <?php if ($_SESSION['usuario_tipo'] === 'tecnico' && $chamado['id_tecnico_responsavel'] == $_SESSION['usuario_id']): ?>
+                            <div class="alert alert-info mb-3">
+                                <small>💡 <strong>Você é o técnico responsável por este chamado.</strong> Atualize o status conforme o andamento do atendimento.</small>
+                            </div>
+                            <?php endif; ?>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
@@ -337,7 +338,7 @@ require 'header.php';
                                     </div>
                                 </div>
                             </div>
-
+                            <?php if ($_SESSION['usuario_tipo'] === 'admin'): ?>
                             <div class="mb-3">
                                 <label class="form-label">Técnico Responsável</label>
                                 <select name="tecnico_responsavel" class="form-select">
@@ -360,6 +361,21 @@ require 'header.php';
                                     <?php endif; ?>
                                 </small>
                             </div>
+                            <?php else: ?>
+                            <!-- Para técnicos não-admin, mostrar apenas informações do técnico responsável -->
+                            <div class="mb-3">
+                                <label class="form-label">Técnico Responsável</label>
+                                <div class="form-control bg-light">
+                                    <?php if ($chamado['tecnico_nome']): ?>
+                                        <?= htmlspecialchars(formatarPatente($chamado['tecnico_posto']) . ' ' . $chamado['tecnico_nome_guerra']) ?> 
+                                        (<?= htmlspecialchars($chamado['tecnico_nome']) ?>)
+                                    <?php else: ?>
+                                        <span class="text-danger">Não atribuído</span>
+                                    <?php endif; ?>
+                                </div>
+                                <input type="hidden" name="tecnico_responsavel" value="<?= $chamado['id_tecnico_responsavel'] ?>">
+                            </div>
+                            <?php endif; ?>
                             <div class="mb-3">
                                 <label class="form-label">Comentário (Resposta ao usuário)</label>
                                 <textarea name="comentario" class="form-control" rows="4" placeholder="Digite aqui sua resposta ou comentário para o usuário..."></textarea>

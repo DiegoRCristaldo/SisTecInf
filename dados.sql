@@ -36,6 +36,10 @@ CREATE TABLE chamados (
     FOREIGN KEY (id_usuario_abriu) REFERENCES usuarios(id)
 );
 
+ALTER TABLE chamados 
+ADD COLUMN sistema_operacional ENUM('Windows', 'Linux', 'IOS') 
+AFTER titulo;
+
 CREATE TABLE comentarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     id_chamado INT NOT NULL,

@@ -151,90 +151,84 @@ function atualizarChamado($conn, $chamado_id, $dados, $usuario_id, $usuario_tipo
     return false;
 }
 
-/**
- * Busca chamados com filtros
- */
-function buscarChamadosComFiltro($conn, $filtros = [], $usuario_id = null, $usuario_tipo = null) {
-    $where_conditions = [];
+function buscarChamadosComFiltro($conn, $filtros = [], $usuario_id = null, $usuario_tipo = 'usuario') {
+    $whereConditions = [];
     $params = [];
-    $types = '';
+    $types = "";
     
-    if ($usuario_tipo !== 'admin' && $usuario_tipo !== 'tecnico') {
-        $where_conditions[] = "c.id_usuario_abriu = ?";
+    // Se for usuário comum em meus_chamados, filtrar apenas seus chamados
+    if ($usuario_tipo === 'usuario' && strpos($_SERVER['PHP_SELF'], 'meus_chamados.php') !== false) {
+        $whereConditions[] = "c.id_usuario_abriu = ?";
         $params[] = $usuario_id;
-        $types .= 'i';
+        $types .= "i";
     }
     
-    // Por padrão, oculta chamados fechados a menos que seja explicitamente filtrado
-    if (empty($filtros['status']) || $filtros['status'] !== 'fechado') {
-        $where_conditions[] = "c.status != 'fechado'";
-    }
-    
-    if (!empty($filtros['status'])) {
-        $where_conditions[] = "c.status = ?";
+    // Aplicar filtros de status
+    if (isset($filtros['status']) && $filtros['status'] !== '') {
+        $whereConditions[] = "c.status = ?";
         $params[] = $filtros['status'];
-        $types .= 's';
+        $types .= "s";
+    } else {
+        // Por padrão, ocultar chamados fechados (exceto quando especificamente filtrados)
+        $whereConditions[] = "c.status != 'fechado'";
     }
     
-    if (!empty($filtros['prioridade'])) {
-        $where_conditions[] = "c.prioridade = ?";
+    // Outros filtros (prioridade, busca, técnico)
+    if (isset($filtros['prioridade']) && $filtros['prioridade'] !== '') {
+        $whereConditions[] = "c.prioridade = ?";
         $params[] = $filtros['prioridade'];
-        $types .= 's';
+        $types .= "s";
     }
     
-    if (!empty($filtros['search'])) {
-        $where_conditions[] = "(c.titulo LIKE ? OR c.descricao LIKE ? OR u.nome LIKE ?)";
-        $search_term = "%{$filtros['search']}%";
-        $params[] = $search_term;
-        $params[] = $search_term;
-        $params[] = $search_term;
-        $types .= 'sss';
+    if (isset($filtros['search']) && $filtros['search'] !== '') {
+        $search = "%{$filtros['search']}%";
+        $whereConditions[] = "(c.titulo LIKE ? OR c.descricao LIKE ? OR u.nome LIKE ? OR u.nome_guerra LIKE ?)";
+        $params[] = $search;
+        $params[] = $search;
+        $params[] = $search;
+        $params[] = $search;
+        $types .= "ssss";
     }
     
-    if (!empty($filtros['tecnico']) && ($usuario_tipo === 'admin' || $usuario_tipo === 'tecnico')) {
-        $where_conditions[] = "c.id_tecnico_responsavel = ?";
+    if (isset($filtros['tecnico']) && $filtros['tecnico'] !== '') {
+        $whereConditions[] = "c.id_tecnico_responsavel = ?";
         $params[] = $filtros['tecnico'];
-        $types .= 'i';
+        $types .= "i";
     }
     
-    // CORREÇÃO: Buscar informações do técnico em vez do usuário que abriu o chamado
+    $whereClause = !empty($whereConditions) ? "WHERE " . implode(" AND ", $whereConditions) : "";
+    
     $sql = "SELECT c.*, 
-                   u.nome AS usuario_nome, 
-                   u.posto_graduacao AS usuario_posto, 
-                   u.nome_guerra AS usuario_nome_guerra,
-                   t.nome AS tecnico_nome,
-                   t.posto_graduacao AS tecnico_posto,
-                   t.nome_guerra AS tecnico_nome_guerra
-            FROM chamados c 
-            JOIN usuarios u ON c.id_usuario_abriu = u.id
-            LEFT JOIN usuarios t ON c.id_tecnico_responsavel = t.id";
-    
-    if (!empty($where_conditions)) {
-        $sql .= " WHERE " . implode(" AND ", $where_conditions);
-    }
-    
-    $sql .= " ORDER BY 
-              CASE c.prioridade 
-                WHEN 'alta' THEN 1 
-                WHEN 'media' THEN 2 
-                WHEN 'baixa' THEN 3 
-              END,
-              c.data_abertura";
+                   u.nome as usuario_nome, 
+                   u.nome_guerra as usuario_nome_guerra,
+                   u.posto_graduacao as usuario_posto,
+                   t.nome as tecnico_nome,
+                   t.nome_guerra as tecnico_nome_guerra,
+                   t.posto_graduacao as tecnico_posto
+            FROM chamados c
+            LEFT JOIN usuarios u ON c.id_usuario_abriu = u.id
+            LEFT JOIN usuarios t ON c.id_tecnico_responsavel = t.id
+            $whereClause
+            ORDER BY 
+                CASE 
+                    WHEN c.prioridade = 'alta' THEN 1
+                    WHEN c.prioridade = 'media' THEN 2
+                    WHEN c.prioridade = 'baixa' THEN 3
+                    ELSE 4
+                END,
+                c.data_abertura ASC";
     
     $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        return false;
-    }
     
     if (!empty($params)) {
         $stmt->bind_param($types, ...$params);
     }
     
-    if (!$stmt->execute()) {
+    if ($stmt->execute()) {
+        return $stmt->get_result();
+    } else {
         return false;
     }
-    
-    return $stmt->get_result();
 }
 
 /**
