@@ -168,11 +168,10 @@ require 'header.php';
                                         <td>
                                             <?php
                                             // Formatar o título: remover o IP se for usuário comum
-                                            $titulo = htmlspecialchars($row['titulo']);
-                                            if ($_SESSION['usuario_tipo'] === 'usuario') {
-                                                // Remove tudo após o último " - " (incluindo o IP)
-                                                $titulo = preg_replace('/ - [^-]+$/', '', $titulo);
-                                            }
+                                            $titulo_com_ip = htmlspecialchars($row['titulo']);
+                                            // Remove tudo após o último " - " (incluindo o IP)
+                                            $titulo_sem_ip = preg_replace('/ - [^-]+$/', '', $titulo_com_ip);
+                                            $titulo = ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecnico') ? $titulo_com_ip : $titulo_sem_ip;
                                             ?>
                                             <div class="fw-semibold"><?= $titulo ?></div>
                                             <small class="text-muted"><?= substr(strip_tags($row['descricao']), 0, 50) ?>...</small>
