@@ -175,11 +175,7 @@ require 'header.php';
                                             }
                                             ?>
                                             <div class="fw-semibold"><?= $titulo ?></div>
-                                            <small class="text-muted">
-                                            <?php if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecnico'): ?>
-                                                <?= substr(strip_tags($row['descricao']), 0, 50) ?>...
-                                            <?php endif; ?>
-                                            </small>
+                                            <small class="text-muted"><?= substr(strip_tags($row['descricao']), 0, 50) ?>...</small>
                                         </td>
                                         <td>
                                             <span class="badge bg-<?= 
