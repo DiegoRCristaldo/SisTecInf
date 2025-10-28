@@ -25,6 +25,9 @@ if (!verificarPermissaoChamado($chamado, $_SESSION['usuario_id'], $_SESSION['usu
     exit;
 }
 
+// Marcar notificações como lidas quando o usuário visualizar o chamado
+marcarNotificacoesComoLidas($conn, $_SESSION['usuario_id'], $chamado_id);
+
 // Buscar lista de técnicos (apenas para admin)
 $tecnicos = [];
 if ($_SESSION['usuario_tipo'] === 'admin') {
@@ -144,8 +147,8 @@ require 'header.php';
                         <?php 
                         // Buscar histórico
                         $historico_result = buscarHistoricoChamado($conn, $chamado_id);
-                        // Buscar comentários
-                        $comentarios_result = buscarComentariosChamado($conn, $chamado_id);
+                        // Buscar comentários e marcar como lido quando o usuário visualizar
+                        $comentarios_result = buscarComentariosChamado($conn, $chamado_id, true);
                         
                         // Combinar histórico e comentários em uma única timeline
                         $timeline = [];

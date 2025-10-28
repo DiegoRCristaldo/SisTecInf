@@ -66,22 +66,33 @@ require 'header.php';
                 <tbody>
                     <?php if ($result->num_rows > 0): ?>
                         <?php while ($row = $result->fetch_assoc()): ?>
+                            <?php
+                            // Verificar se o chamado tem notificações não lidas
+                            $tem_notificacoes = chamadoTemNotificacoesNaoLidas($conn, $row['id'], $_SESSION['usuario_id']);
+                            $num_notificacoes = contarNotificacoesNaoLidasPorChamado($conn, $row['id'], $_SESSION['usuario_id']);
+                            ?>
                             <tr>
                                 <td>
                                     <?= filaPrioridadeAtendimento($conn, $row['prioridade'], $row['data_abertura'], $row['id']) ?>
                                 </td>
                                 <td>
-                                    <?php
-                                    // Formatar o título: remover o IP se for usuário comum
-                                    $titulo = htmlspecialchars($row['titulo']);
-                                    if ($_SESSION['usuario_tipo'] === 'usuario') {
-                                        // Remove tudo após o último " - " (incluindo o IP)
-                                        $titulo = preg_replace('/ - [^-]+$/', '', $titulo);
-                                    }
-                                    ?>
-                                    <div class="fw-semibold"><?= $titulo ?></div>
+                                    <div class="d-flex align-items-center">
+                                        <?php
+                                        // Formatar o título: remover o IP se for usuário comum
+                                        $titulo = htmlspecialchars($row['titulo']);
+                                        if ($_SESSION['usuario_tipo'] === 'usuario') {
+                                            // Remove tudo após o último " - " (incluindo o IP)
+                                            $titulo = preg_replace('/ - [^-]+$/', '', $titulo);
+                                        }
+                                        ?>
+                                        <div class="fw-semibold me-2"><?= $titulo ?></div>
+                                        <?php if ($tem_notificacoes): ?>
+                                            <span class="badge bg-danger" title="<?= $num_notificacoes ?> nova(s) notificação(ões)">
+                                                🔔 <?= $num_notificacoes > 1 ? $num_notificacoes : '' ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
                                     <small class="text-muted"><?= substr(strip_tags($row['descricao']), 0, 50) ?>...</small>
-                                
                                 </td>
                                 <td>
                                     <span class="badge bg-<?= 
@@ -102,14 +113,19 @@ require 'header.php';
                                     <?php else: ?>
                                         <span class="text-muted">Não atribuído</span>
                                     <?php endif; ?>
-                                </td>                                <td><?= date('d/m/Y H:i', strtotime($row['data_abertura'])) ?></td>
+                                </td>
+                                <td><?= date('d/m/Y H:i', strtotime($row['data_abertura'])) ?></td>
                                 <td>
-                                    <a href="detalhar_chamado.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-primary">👁️ Ver</a>
+                                    <div class="d-flex gap-1 align-items-center">
+                                        <a href="detalhar_chamado.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-outline-primary">👁️ Ver</a>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
-                        <td colspan="6" class="text-center">Nenhum chamado encontrado.</td>
+                        <tr>
+                            <td colspan="7" class="text-center">Nenhum chamado encontrado.</td>
+                        </tr>
                     <?php endif; ?>
                 </tbody>
             </table>

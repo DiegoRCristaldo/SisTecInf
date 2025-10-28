@@ -5,30 +5,57 @@ if (!isset($_SESSION['usuario_id'])) {
     exit;
 }
 
+require_once 'includes/db.php';
 require_once 'includes/funcoes_chamado.php';
-require 'header.php';
+
+// Buscar notificações do usuário
+$total_notificacoes = buscarNotificacoesUsuario($conn, $_SESSION['usuario_id']);
+
+// Buscar detalhes das notificações para o dropdown
+$notificacoes_detalhes = buscarDetalhesNotificacoes($conn, $_SESSION['usuario_id'], 5);
+require_once 'header.php';
+
 ?>
 </head>
 <body class="d-flex flex-row">
   <header>
     <nav id="sidebar" class="d-flex flex-column p-3">
       <h4 class="text-center mb-4">Assistência Técnica</h4>
-      <div class="mb-4 px-3">
-        <strong>
-          <?= htmlspecialchars(formatarPatente($_SESSION['usuario_posto_graduacao']) ?? '') . ' ' . htmlspecialchars($_SESSION['usuario_nome_guerra'] ?? '') ?>
-        </strong><br/>
-        <small><?= ucfirst($_SESSION['usuario_tipo'] ?? '') ?></small>
+      
+      <!-- Perfil do usuário com notificações -->
+      <div class="dropdown mb-4 px-3">
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+          <div>
+            <strong>
+              <?= htmlspecialchars(formatarPatente($_SESSION['usuario_posto_graduacao']) ?? '') . ' ' . htmlspecialchars($_SESSION['usuario_nome_guerra'] ?? '') ?>
+            </strong><br/>
+            <small><?= ucfirst($_SESSION['usuario_tipo'] ?? '') ?></small>
+          </div>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+          <li><a class="dropdown-item" href="meus_chamados.php">Meus Chamados</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="logout.php">Sair</a></li>
+        </ul>
       </div>
+
       <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item">
           <a href="abrir_chamado.php" class="nav-link">📝 Abrir Chamado</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item position-relative">
           <a href="meus_chamados.php" class="nav-link">📋 Meus Chamados</a>
+          <?php if ($total_notificacoes > 0): ?>
+          <span class="position-absolute top-50 start-100 translate-middle badge rounded-pill bg-danger notificacao-badge">+
+            <?= $total_notificacoes ?>
+            <span class="visually-hidden">notificações</span>
+          </span>
+          <?php endif; ?>
         </li>
         <li class="nav-item">
           <a href="visualizar_chamados.php" class="nav-link">📋 Visualizar Chamados</a>
         </li>
+
         <?php if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecnico'): ?>
         <li class="nav-item">
           <a href="equipamentos.php" class="nav-link">💻 Equipamentos</a>
@@ -44,6 +71,7 @@ require 'header.php';
           <a href="logout.php" class="nav-link mt-4">🚪 Sair</a>
         </li>
       </ul>
+      <small class="text-white p-4 text-center">Sistema desenvolvido pelo 2° Sgt Eng <strong>DIEGO</strong> Rodrigues Cristaldo</small>
     </nav>
   </header>
 
@@ -88,7 +116,7 @@ require 'header.php';
             <div class="p-3 border rounded text-center h-100">
               <h5 class="text-dark"><i class="bi bi-tools"></i> Instalação</h5>
               <small class="text-muted d-block mb-3">
-                Antivírus, Siscofis, Java (SIAFI), token, ponto de rede, etc.
+                Antivírus, Siscofis, Java (SIAFI), token, ponto de rede, softwares em geral etc.
               </small>
               <a href="abrir_chamado.php" class="btn btn-secondary w-100">Solicitar Instalação</a>
             </div>

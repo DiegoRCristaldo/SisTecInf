@@ -10,12 +10,12 @@ if ($_SESSION['usuario_tipo'] !== 'admin') {
 
 // Criar usuário
 if (isset($_POST['acao']) && $_POST['acao'] === 'criar') {
-    $nome = $_POST['nome'];
+    $nome = mb_convert_case($_POST['nome'], MB_CASE_TITLE);
     $email = $_POST['email'];
     $senha = password_hash($_POST['senha'], PASSWORD_DEFAULT);
     $tipo = $_POST['tipo'];
     $posto_graduacao = $_POST['posto_graduacao'];
-    $nome_guerra = $_POST['nome_guerra'];
+    $nome_guerra = strtoupper($_POST['nome_guerra']);
     $stmt = $conn->prepare("INSERT INTO usuarios (nome, email, senha, tipo, posto_graduacao, nome_guerra, data_cadastro) VALUES (?, ?, ?, ?, ?, ?, NOW())");
     $stmt->bind_param("ssssss", $nome, $email, $senha, $tipo, $posto_graduacao, $nome_guerra);
     $stmt->execute();
@@ -26,11 +26,11 @@ if (isset($_POST['acao']) && $_POST['acao'] === 'criar') {
 // Editar usuário
 if (isset($_POST['acao']) && $_POST['acao'] === 'editar') {
     $id = $_POST['id'];
-    $nome = $_POST['nome'];
+    $nome = mb_convert_case($_POST['nome'], MB_CASE_TITLE);
     $email = $_POST['email'];
     $tipo = $_POST['tipo'];
     $posto_graduacao = $_POST['posto_graduacao'];
-    $nome_guerra = $_POST['nome_guerra'];
+    $nome_guerra = strtoupper($_POST['nome_guerra']);
 
     if (!empty($_POST['senha'])) {
         $senha = password_hash($_POST['senha'], PASSWORD_DEFAULT);
@@ -113,7 +113,7 @@ require 'header.php';
                         <td><?= htmlspecialchars($patentes[$u['posto_graduacao']] ?? $u['posto_graduacao']) ?></td>                    <td><?= htmlspecialchars($u['nome']) ?></td>
                         <td><?= htmlspecialchars($u['nome_guerra']) ?></td>
                         <td><?= htmlspecialchars($u['email']) ?></td>
-                        <td><?= ucfirst($u['tipo']) ?></td>
+                        <td><?= mb_convert_case($u['tipo'], MB_CASE_TITLE) ?></td>
                         <td><?= date('d/m/Y H:i', strtotime($u['data_cadastro'])) ?></td>
                         <td>
                             <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditar<?= $u['id'] ?>">Editar</button>

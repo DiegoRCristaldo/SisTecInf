@@ -99,8 +99,10 @@ function atualizarChamado($conn, $chamado_id, $dados, $usuario_id, $usuario_tipo
     $novo_status = $dados['status'];
     $prioridade = $dados['prioridade'];
     $tecnico_id = $usuario_id;
-
     $comentario = $dados['comentario'] ?? '';
+    
+    // Buscar dados atuais do chamado
+    $chamado_atual = buscarChamadoPorId($conn, $chamado_id);
     
     // Se for admin e tiver selecionado um técnico, usar o técnico selecionado
     if ($usuario_tipo === 'admin' && !empty($dados['tecnico_responsavel'])) {
@@ -129,6 +131,19 @@ function atualizarChamado($conn, $chamado_id, $dados, $usuario_id, $usuario_tipo
         
         if ($usuario_tipo === 'admin' && !empty($dados['tecnico_responsavel'])) {
             $observacao .= ", Técnico atribuído";
+            
+            // Notificar usuário sobre atribuição de técnico
+            if ($chamado_atual && $chamado_atual['id_usuario_abriu'] != $usuario_id) {
+                $tecnico_novo = buscarTecnicoPorId($conn, $tecnico_id);
+                $mensagem = "Técnico atribuído: " . ($tecnico_novo['nome_guerra'] ?? 'Novo técnico');
+                criarNotificacao($conn, $chamado_atual['id_usuario_abriu'], $chamado_id, 'atribuicao', $mensagem);
+            }
+        }
+        
+        // Notificar usuário sobre atualização de status
+        if ($chamado_atual && $chamado_atual['id_usuario_abriu'] != $usuario_id) {
+            $mensagem = "Status atualizado: " . $novo_status . ", Prioridade: " . $prioridade;
+            criarNotificacao($conn, $chamado_atual['id_usuario_abriu'], $chamado_id, 'atualizacao', $mensagem);
         }
         
         $sql_historico = "INSERT INTO historico_chamados (chamado_id, tecnico_id, acao, observacao) 
@@ -149,6 +164,22 @@ function atualizarChamado($conn, $chamado_id, $dados, $usuario_id, $usuario_tipo
     }
     
     return false;
+}
+
+/**
+ * Busca técnico por ID
+ */
+function buscarTecnicoPorId($conn, $tecnico_id) {
+    $sql = "SELECT nome, nome_guerra, posto_graduacao FROM usuarios WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $tecnico_id);
+    
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
+    
+    return null;
 }
 
 function buscarChamadosComFiltro($conn, $filtros = [], $usuario_id = null, $usuario_tipo = 'usuario') {
@@ -410,7 +441,7 @@ function filaPrioridadeAtendimento($conn, $prioridade, $data_abertura, $chamado_
 }
 
 /**
- * Adiciona um comentário a um chamado
+ * Adiciona um comentário a um chamado e cria notificação
  */
 function adicionarComentarioChamado($conn, $chamado_id, $usuario_id, $comentario) {
     $sql = "INSERT INTO comentarios (id_chamado, id_usuario, comentario) VALUES (?, ?, ?)";
@@ -423,6 +454,12 @@ function adicionarComentarioChamado($conn, $chamado_id, $usuario_id, $comentario
     $stmt->bind_param("iis", $chamado_id, $usuario_id, $comentario);
     
     if ($stmt->execute()) {
+        // Buscar informações do chamado para notificação
+        $chamado = buscarChamadoPorId($conn, $chamado_id);
+        if ($chamado && $chamado['id_usuario_abriu'] != $usuario_id) {
+            $mensagem = "Novo comentário: " . (strlen($comentario) > 50 ? substr($comentario, 0, 50) . "..." : $comentario);
+            criarNotificacao($conn, $chamado['id_usuario_abriu'], $chamado_id, 'comentario', $mensagem);
+        }
         return true;
     }
     
@@ -432,23 +469,152 @@ function adicionarComentarioChamado($conn, $chamado_id, $usuario_id, $comentario
 /**
  * Busca comentários de um chamado
  */
-function buscarComentariosChamado($conn, $chamado_id) {
-    $sql = "SELECT c.*, u.nome, u.nome_guerra, u.posto_graduacao 
-            FROM comentarios c 
-            JOIN usuarios u ON c.id_usuario = u.id 
-            WHERE c.id_chamado = ? 
-            ORDER BY c.data ASC";
+function buscarComentariosChamado($conn, $chamado_id, $marcar_como_lido = false) {
+    // Primeiro busca os comentários
+    $sql = "SELECT cc.*, u.nome, u.nome_guerra, u.posto_graduacao 
+            FROM comentarios cc 
+            INNER JOIN usuarios u ON cc.id_usuario = u.id 
+            WHERE cc.id_chamado = ? 
+            ORDER BY cc.data ASC";
     
     $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $chamado_id);
+    
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+        
+        // Se for para marcar como lido (quando o usuário visualizar o chamado)
+        if ($marcar_como_lido && $result->num_rows > 0) {
+            $sql_update = "UPDATE comentarios SET lido = 1 WHERE id_chamado = ?";
+            $stmt_update = $conn->prepare($sql_update);
+            $stmt_update->bind_param("i", $chamado_id);
+            $stmt_update->execute();
+            $stmt_update->close();
+        }
+        
+        return $result;
+    }
+    
+    return false;
+}
+
+/**
+ * Cria uma notificação para o usuário
+ */
+function criarNotificacao($conn, $usuario_id, $chamado_id, $tipo, $mensagem) {
+    $sql = "INSERT INTO notificacoes (usuario_id, chamado_id, tipo, mensagem) VALUES (?, ?, ?, ?)";
+    $stmt = $conn->prepare($sql);
+    
     if (!$stmt) {
         return false;
     }
     
-    $stmt->bind_param("i", $chamado_id);
-    if (!$stmt->execute()) {
-        return false;
+    $stmt->bind_param("iiss", $usuario_id, $chamado_id, $tipo, $mensagem);
+    return $stmt->execute();
+}
+
+/**
+ * Busca notificações não lidas para o usuário
+ */
+function buscarNotificacoesUsuario($conn, $usuario_id) {
+    $sql = "SELECT COUNT(*) as total 
+            FROM notificacoes 
+            WHERE usuario_id = ? 
+            AND lida = 0";
+    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $usuario_id);
+    
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        return $row['total'] ?? 0;
     }
     
-    return $stmt->get_result();
+    return 0;
+}
+
+/**
+ * Busca detalhes das notificações do usuário
+ */
+function buscarDetalhesNotificacoes($conn, $usuario_id, $limite = 10) {
+    $sql = "SELECT n.*, c.titulo, c.status,
+                   u.nome as tecnico_nome, u.nome_guerra as tecnico_nome_guerra
+            FROM notificacoes n
+            INNER JOIN chamados c ON n.chamado_id = c.id
+            LEFT JOIN usuarios u ON c.id_tecnico_responsavel = u.id
+            WHERE n.usuario_id = ?
+            ORDER BY n.data_criacao DESC
+            LIMIT ?";
+    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $usuario_id, $limite);
+    
+    if ($stmt->execute()) {
+        return $stmt->get_result();
+    }
+    
+    return false;
+}
+
+/**
+ * Marca notificações como lidas
+ */
+function marcarNotificacoesComoLidas($conn, $usuario_id, $chamado_id = null) {
+    if ($chamado_id) {
+        $sql = "UPDATE notificacoes SET lida = 1 WHERE usuario_id = ? AND chamado_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ii", $usuario_id, $chamado_id);
+    } else {
+        $sql = "UPDATE notificacoes SET lida = 1 WHERE usuario_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $usuario_id);
+    }
+    
+    return $stmt->execute();
+}
+
+/**
+ * Verifica se um chamado tem notificações não lidas
+ */
+function chamadoTemNotificacoesNaoLidas($conn, $chamado_id, $usuario_id) {
+    $sql = "SELECT COUNT(*) as total 
+            FROM notificacoes 
+            WHERE chamado_id = ? 
+            AND usuario_id = ?
+            AND lida = 0";
+    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $chamado_id, $usuario_id);
+    
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        return $row['total'] > 0;
+    }
+    
+    return false;
+}
+
+/**
+ * Conta notificações não lidas por chamado
+ */
+function contarNotificacoesNaoLidasPorChamado($conn, $chamado_id, $usuario_id) {
+    $sql = "SELECT COUNT(*) as total 
+            FROM notificacoes 
+            WHERE chamado_id = ? 
+            AND usuario_id = ?
+            AND lida = 0";
+    
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii", $chamado_id, $usuario_id);
+    
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        return $row['total'];
+    }
+    
+    return 0;
 }
 ?>

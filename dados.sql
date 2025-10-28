@@ -50,6 +50,8 @@ CREATE TABLE comentarios (
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
 );
 
+ALTER TABLE comentarios ADD COLUMN lido TINYINT(1) DEFAULT 0;
+
 CREATE TABLE equipamentos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
@@ -104,3 +106,20 @@ CHANGE COLUMN setor secao VARCHAR(50);
 
 ALTER TABLE equipamentos 
 DROP COLUMN numero_patrimonio;
+
+-- Criar tabela de notificações para registrar todas as atualizações
+CREATE TABLE notificacoes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    chamado_id INT NOT NULL,
+    tipo ENUM('comentario', 'atualizacao', 'atribuicao', 'fechamento') NOT NULL,
+    mensagem TEXT NOT NULL,
+    lida TINYINT(1) DEFAULT 0,
+    data_criacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+    FOREIGN KEY (chamado_id) REFERENCES chamados(id) ON DELETE CASCADE
+);
+
+-- Criar índice para melhor performance
+CREATE INDEX idx_notificacoes_usuario_lida ON notificacoes(usuario_id, lida);
+CREATE INDEX idx_notificacoes_data ON notificacoes(data_criacao DESC);

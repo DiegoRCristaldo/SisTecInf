@@ -105,11 +105,8 @@ $secoes = [
 ];
 
 $ip_usuario = getUserIP();
-if ($_SESSION['usuario_tipo'] === 'admin' || $_SESSION['usuario_tipo'] === 'tecnico') {
-    $titulo_padrao = $nome_usuario . ' - ' . $ip_usuario;
-} else {
-    $titulo_padrao = $nome_usuario;
-}
+$titulo_padrao = $nome_usuario . ' - ' . $ip_usuario;
+
 
 // Verifica se há mensagem de sucesso
 if (isset($_GET['msg']) && $_GET['msg'] === 'sucesso') {

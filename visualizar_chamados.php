@@ -61,7 +61,7 @@ require 'header.php';
             <div class="col-md-3 mb-3">
                 <div class="card stats-card border-0 shadow-sm">
                     <div class="card-body text-center">
-                        <h5 class="card-title text-primary"><?= $stats['total'] ?></h5>
+                        <h5 class="card-title text-primary"><?= $stats['total'] - $stats['fechados']?></h5>
                         <p class="card-text text-muted">Total<?= empty($filtro_status) ? ' (Ativos)' : '' ?></p>
                     </div>
                 </div>
